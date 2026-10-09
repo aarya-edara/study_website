@@ -9,18 +9,15 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, accuracy_score
 
 
-# TRAINING DATA
-#
+
 # 1 = useful for revision
-# 0 = usually not useful for revision
-#
-# This is only starter data.
-# Later, replace/expand this with examples from your own
-# lecture notes for a much better model.
+# 0 = usually not as useful for revision
+
+# the starter data below is to be later replaced with more advanced notes to make the model more accurate/efficient
 
 training_data = [
 
-    # IMPORTANT: DEFINITIONS
+    # definitions
 
     ("Electric flux is the measure of the electric field passing through a surface.", 1),
     ("Voltage is the electric potential difference between two points.", 1),
@@ -43,7 +40,7 @@ training_data = [
     ("A transistor is a semiconductor device used for switching or amplification.", 1),
     ("An operational amplifier is a high-gain differential voltage amplifier.", 1),
 
-    # IMPORTANT: LAWS / EQUATIONS / RELATIONSHIPS
+    # laws, equations and relationships
 
     ("Ohm's law states that voltage equals current multiplied by resistance.", 1),
     ("Gauss's law relates electric flux through a closed surface to the enclosed charge.", 1),
@@ -60,9 +57,7 @@ training_data = [
     ("The dot product of perpendicular vectors is zero.", 1),
     ("The magnitude of a unit vector is one.", 1),
 
-    # --------------------------------------------------------
-    # IMPORTANT: CAUSE / EFFECT / CONCEPTS
-    # --------------------------------------------------------
+    # cause, effect + concepts
 
     ("Increasing reverse bias causes the depletion region to become wider.", 1),
     ("Forward bias allows significant current to flow through a diode.", 1),
@@ -76,7 +71,7 @@ training_data = [
     ("The direction of the gradient is normal to a level surface.", 1),
 
 
-    # IMPORTANT: METHODS / PROCEDURES
+    # methods and procedures
 
     ("To calculate electric flux, take the surface integral of the electric field dotted with the area vector.", 1),
     ("To determine whether vectors are linearly independent, solve the corresponding homogeneous equation.", 1),
@@ -86,7 +81,7 @@ training_data = [
     ("The chain rule is used when differentiating a composition of functions.", 1),
     ("Partial differentiation treats the other independent variables as constants.", 1),
 
-    # IMPORTANT: QUALIFICATIONS / EXCEPTIONS
+    # qualifications and exceptions
 
     ("An ideal diode has zero voltage drop when forward biased.", 1),
     ("A silicon diode is commonly approximated as having a forward voltage drop of about 0.7 volts.", 1),
@@ -94,9 +89,7 @@ training_data = [
     ("Gauss's law is always valid, although symmetry determines whether it is useful for calculating the field.", 1),
     ("A set containing the zero vector is linearly dependent.", 1),
 
-    # --------------------------------------------------------
-    # UNIMPORTANT / LECTURE FILLER
-    # --------------------------------------------------------
+    # content to be ignored - with score 0
 
     ("Welcome to today's lecture.", 0),
     ("Today we are going to continue our discussion.", 0),
@@ -123,9 +116,7 @@ training_data = [
     ("This example is left as an exercise for the reader.", 0),
     ("We have now reached the end of this lecture.", 0),
 
-    # --------------------------------------------------------
-    # LESS USEFUL FRAGMENTS
-    # --------------------------------------------------------
+    # words/phrases that are not as useful or rich in content
 
     ("Example 1.", 0),
     ("Example 2.", 0),
@@ -143,12 +134,12 @@ training_data = [
     ("Consider the following.", 0),
 ]
 
-# BASIC CLEANING
+# basic cleaning
 
 def clean_sentence(sentence):
     sentence = str(sentence)
 
-    # Remove repeated whitespace
+    # removing repeated whitespace
     sentence = re.sub(r"\s+", " ", sentence)
 
     return sentence.strip()
@@ -158,8 +149,7 @@ texts = [clean_sentence(text) for text, label in training_data]
 labels = [label for text, label in training_data]
 
 
-# TRAIN / TEST SPLIT
-
+# train/test split
 
 X_train, X_test, y_train, y_test = train_test_split(
     texts,
@@ -170,13 +160,9 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 
-# MODEL
+# TF-IDF: Turns words/phrases into numerical features.
 
-# TF-IDF:
-# Turns words/phrases into numerical features.
-
-# Logistic Regression:
-# Learns which features tend to indicate useful revision sentences.
+# Logistic regression: learns which features usually indicate useful revision sentences
 
 model = Pipeline([
     (
@@ -198,13 +184,13 @@ model = Pipeline([
     )
 ])
 
-# TRAIN
+# train
 
 print("\nTraining revision importance model...\n")
 
 model.fit(X_train, y_train)
 
-# TEST
+# test
 
 predictions = model.predict(X_test)
 
@@ -227,9 +213,7 @@ print(
 )
 
 
-# ============================================================
-# SHOW EXAMPLES
-# ============================================================
+# show examples
 
 examples = [
     "Gauss's law states that electric flux depends on enclosed charge.",
@@ -252,7 +236,7 @@ for sentence in examples:
         f"  |  {sentence}"
     )
 
-# SAVE MODEL
+# Save model
 
 model_directory = "models"
 
