@@ -26,10 +26,6 @@
 <body>
 
 
-<!-- ==========================================
-     NAVIGATION
-     ========================================== -->
-
 <nav class="top-nav">
 
     <a href="{{ url_for('home') }}" class="site-name">
@@ -55,25 +51,14 @@
 </nav>
 
 
-
-<!-- ==========================================
-     PAGE TITLE
-     ========================================== -->
-
 <h1>My To-Do List</h1>
 
 
-
-<!-- ==========================================
-     ADD TASK FORM
-     ========================================== -->
 
 <form id="todoForm">
 
     <div class="todo-inputs">
 
-
-        <!-- TASK NAME -->
 
         <input
             type="text"
@@ -82,9 +67,6 @@
             required
         >
 
-
-        <!-- MODULE / CATEGORY -->
-
         <input
             type="text"
             id="taskCategory"
@@ -92,7 +74,6 @@
         >
 
 
-        <!-- PRIORITY -->
 
         <select id="taskPriority">
 
@@ -111,7 +92,6 @@
         </select>
 
 
-        <!-- DEADLINE -->
 
         <input
             type="datetime-local"
@@ -119,8 +99,6 @@
             required
         >
 
-
-        <!-- ADD BUTTON -->
 
         <button
             type="submit"
@@ -136,9 +114,6 @@
 
 
 
-<!-- ==========================================
-     TASK TABLE
-     ========================================== -->
 
 <div class="todo-table-container">
 
@@ -147,8 +122,6 @@
         <thead>
 
             <tr>
-
-                <!-- DRAG HANDLE COLUMN -->
                 <th class="drag-column"></th>
 
                 <th>Task</th>
@@ -176,25 +149,14 @@
 
 
 
-<!-- EMPTY MESSAGE -->
-
 <p id="emptyMessage" class="todo-empty">
     No tasks added yet.
 </p>
 
 
 
-<!-- ==========================================
-     JAVASCRIPT
-     ========================================== -->
-
 <script>
 
-    /*
-    =============================================
-    STORAGE
-    =============================================
-    */
 
     const STORAGE_KEY = "scheduleMaker.todo.v1";
 
@@ -205,12 +167,6 @@
     let draggedIndex = null;
 
 
-
-    /*
-    =============================================
-    LOAD SAVED TASKS
-    =============================================
-    */
 
     try {
 
@@ -239,11 +195,6 @@
 
 
 
-
-
-
-    /* SAVE TASKS */
-
     function saveTasks() {
 
         localStorage.setItem(
@@ -253,8 +204,6 @@
 
     }
 
-
-    /* GIVE EVERY TASK A PERMANENT ID */
 
     let addedMissingIds = false;
 
@@ -279,29 +228,14 @@
 
 
 
-
-
-
-
-    /* DISPLAY TASKS */
-
     function displayTasks() {
 
         const body =
             document.getElementById("todoBody");
 
 
-        // Remove existing rows
-
         body.replaceChildren();
 
-
-
-        /*
-        -----------------------------------------
-        CREATE EACH TASK ROW
-        -----------------------------------------
-        */
 
         tasks.forEach((task, index) => {
 
@@ -310,9 +244,6 @@
                 document.createElement("tr");
 
 
-            /*
-            COMPLETED TASK
-            */
 
             if (task.completed || task.done) {
 
@@ -322,13 +253,6 @@
 
             }
 
-
-
-            /*
-            =====================================
-            DRAG HANDLE
-            =====================================
-            */
 
             const dragCell =
                 document.createElement("td");
@@ -360,12 +284,6 @@
 
 
 
-            /*
-            =====================================
-            TASK NAME
-            =====================================
-            */
-
             const taskCell =
                 document.createElement("td");
 
@@ -376,13 +294,6 @@
                 taskCell
             );
 
-
-
-            /*
-            =====================================
-            MODULE / CATEGORY
-            =====================================
-            */
 
             const categoryCell =
                 document.createElement("td");
@@ -395,12 +306,6 @@
             );
 
 
-
-            /*
-            =====================================
-            PRIORITY
-            =====================================
-            */
 
             const priorityCell =
                 document.createElement("td");
@@ -428,14 +333,6 @@
                 priorityCell
             );
 
-
-
-            /*
-            =====================================
-            DEADLINE
-            =====================================
-            */
-
             const deadlineCell =
                 document.createElement("td");
 
@@ -461,24 +358,9 @@
                 deadlineCell
             );
 
-
-
-            /*
-            =====================================
-            ACTION BUTTONS
-            =====================================
-            */
-
             const actions =
                 document.createElement("td");
 
-
-
-            /*
-            -------------------------------------
-            DONE BUTTON
-            -------------------------------------
-            */
 
             const doneButton =
                 document.createElement("button");
@@ -517,12 +399,6 @@
                 };
 
 
-
-
-            // =====================================
-            // EDIT BUTTON
-            // =====================================
-
             const editButton =
                 document.createElement("button");
 
@@ -534,9 +410,6 @@
 
 
             editButton.onclick = function() {
-
-                // Give older saved tasks an ID if they
-                // were created before IDs were added.
 
                 if (!task.id) {
 
@@ -582,12 +455,6 @@
                 });
 
             };
-
-            /*
-            -------------------------------------
-            DELETE BUTTON
-            -------------------------------------
-            */
 
             const deleteButton =
                 document.createElement("button");
@@ -647,10 +514,6 @@
 
 
 
-            /*
-            ADD BUTTONS TO CELL
-            */
-
             actions.appendChild(
                 doneButton
             );
@@ -671,18 +534,6 @@
             );
 
 
-
-            /*
-            =====================================
-            DRAG AND DROP EVENTS
-            =====================================
-            */
-
-
-            /*
-            Only activate dragging when
-            the ≡ handle is grabbed.
-            */
 
             dragHandle.addEventListener(
                 "mousedown",
@@ -705,11 +556,6 @@
                 }
             );
 
-
-
-            /*
-            DRAG START
-            */
 
             row.addEventListener(
                 "dragstart",
@@ -738,11 +584,6 @@
             );
 
 
-
-            /*
-            DRAG OVER
-            */
-
             row.addEventListener(
                 "dragover",
                 function(event) {
@@ -756,10 +597,6 @@
             );
 
 
-
-            /*
-            VISUAL POSITION WHILE DRAGGING
-            */
 
             row.addEventListener(
                 "dragenter",
@@ -832,10 +669,6 @@
 
 
 
-            /*
-            DROP
-            */
-
             row.addEventListener(
                 "drop",
                 function(event) {
@@ -851,11 +684,6 @@
 
                     }
 
-
-                    /*
-                    Find the visual order of
-                    the rows after dragging.
-                    */
 
                     const body =
                         document.getElementById(
@@ -891,11 +719,6 @@
                     }
 
 
-                    /*
-                    Move the actual task
-                    inside the tasks array.
-                    */
-
                     const movedTask =
                         tasks.splice(
                             draggedIndex,
@@ -910,9 +733,6 @@
                     );
 
 
-                    /*
-                    SAVE NEW ORDER
-                    */
 
                     saveTasks();
 
@@ -921,9 +741,6 @@
                         null;
 
 
-                    /*
-                    REDRAW TABLE
-                    */
 
                     displayTasks();
 
@@ -932,21 +749,11 @@
 
 
 
-            /*
-            DRAG END
-            */
 
             row.addEventListener(
                 "dragend",
                 function() {
 
-
-                    /*
-                    If the user moved the row
-                    but released it without the
-                    normal drop event, calculate
-                    its current position here.
-                    */
 
                     if (
                         draggedIndex !== null
@@ -1018,10 +825,6 @@
 
 
 
-            /*
-            ADD ROW TO TABLE
-            */
-
             body.appendChild(
                 row
             );
@@ -1030,11 +833,6 @@
 
 
 
-        /*
-        =========================================
-        EMPTY MESSAGE
-        =========================================
-        */
 
         document.getElementById(
             "emptyMessage"
@@ -1045,11 +843,6 @@
 
 
 
-    /*
-    =============================================
-    ADD OR UPDATE TASK
-    =============================================
-    */
 
     document.getElementById(
         "todoForm"
@@ -1089,10 +882,6 @@
 
 
 
-            /*
-            MAKE SURE REQUIRED FIELDS
-            EXIST
-            */
 
             if (
                 !name ||
@@ -1105,11 +894,6 @@
 
 
 
-            /*
-            -------------------------------------
-            EDIT EXISTING TASK
-            -------------------------------------
-            */
 
 
             if (editingTaskId !== null) {
@@ -1134,13 +918,6 @@
                 editingTaskId = null;
             }
 
-
-            /*
-            -------------------------------------
-            ADD NEW TASK
-            -------------------------------------
-            */
-
             else {
 
 
@@ -1162,33 +939,19 @@
 
 
 
-            /*
-            SAVE
-            */
 
             saveTasks();
 
 
 
-            /*
-            REDRAW TABLE
-            */
 
             displayTasks();
 
 
 
-            /*
-            CLEAR FORM
-            */
-
             this.reset();
 
 
-
-            /*
-            RESTORE BUTTON TEXT
-            */
 
             document.getElementById(
                 "addTaskButton"
@@ -1200,8 +963,6 @@
     );
 
 
-
-    /* INITIAL DISPLAY */
 
     displayTasks();
 
