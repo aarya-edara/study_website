@@ -399,8 +399,6 @@ select:disabled {
 }
 
 
-/* ---------- QUESTIONS ---------- */
-
 .question {
     padding: 28px 0;
 
@@ -417,8 +415,6 @@ select:disabled {
     font-weight: 600;
 }
 
-
-/* Inputs on this page */
 
 .question input,
 .question select {
@@ -437,9 +433,6 @@ select:disabled {
 .question select:focus {
     border-color: var(--text);
 }
-
-
-/* ---------- TIME RANGES ---------- */
 
 .time-range {
     display: flex;
@@ -471,8 +464,6 @@ select:disabled {
 }
 
 
-/* ---------- GENERATE BUTTON ---------- */
-
 .generate-button {
     margin-top: 30px;
 
@@ -492,8 +483,6 @@ select:disabled {
 }
 
 
-/* ---------- MOBILE ---------- */
-
 @media (max-width: none) {
 
     .questionnaire {
@@ -510,10 +499,6 @@ select:disabled {
     }
 }
 
-
-
-/* ---------- TOP NAVIGATION ---------- */
-
 .top-nav {
     width: 100%;
 
@@ -528,8 +513,6 @@ select:disabled {
 }
 
 
-/* ---------- LEFT SITE NAME ---------- */
-
 .site-name {
     color: var(--text);
 
@@ -541,7 +524,6 @@ select:disabled {
     letter-spacing: -0.02em;
 }
 
-/* ---------- RIGHT NAV LINKS ---------- */
 
 .nav-links {
     display: flex;
@@ -599,8 +581,6 @@ select:disabled {
 }
 
 
-/* GENERATED SCHEDULE PAGE */
-
 .schedule-results {
     width: 100%;
     margin-top: 30px;
@@ -620,8 +600,6 @@ select:disabled {
     overflow: hidden;
 }
 
-/* TABLE HEADINGS */
-
 .results-table thead {
     background: var(--text);
     color: white;
@@ -640,7 +618,6 @@ select:disabled {
     white-space: nowrap;
 }
 
-/* TABLE CELLS */
 
 .results-table td {
     padding: 17px 15px;
@@ -666,13 +643,10 @@ select:disabled {
     background: #faf0f4;
 }
 
-/* TASK NAME */
-
 .result-task {
     font-weight: 700;
 }
 
-/* PRIORITY LABELS */
 
 .priority-label {
     display: inline-block;
@@ -699,15 +673,12 @@ select:disabled {
     color: #0f5132;
 }
 
-/* DEADLINE COUNTDOWN */
 
 .remaining-time {
     font-family: "IBM Plex Mono", monospace;
     font-weight: 600;
     white-space: nowrap;
 }
-
-/* EMPTY SCHEDULE */
 
 .empty-schedule {
     padding: 25px;
@@ -718,8 +689,6 @@ select:disabled {
     text-align: center;
 }
 
-
-/* STUDY MATERIALS */
 
 .study-description {
     text-align: center;
@@ -840,7 +809,6 @@ select:disabled {
     color: white;
 }
 
-/* SHARED PAGE STYLING */
 
 body {
     font-family: "IBM Plex Mono", monospace;
