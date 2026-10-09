@@ -839,9 +839,6 @@ h1 {
     text-decoration: underline;
 }
 
-/* TO-DO LIST PAGE */
-
-/* TASK INPUT FORM */
 
 .todo-inputs {
 
@@ -855,8 +852,6 @@ h1 {
     margin-bottom: 30px;
 
 }
-
-/* INPUTS */
 
 .todo-inputs input,
 .todo-inputs select {
@@ -878,8 +873,6 @@ h1 {
     font-size: 0.85rem;
 
 }
-
-/* ADD TASK BUTTON */
 
 .todo-add-button {
 
@@ -903,8 +896,6 @@ h1 {
 
 }
 
-/* TABLE CONTAINER */
-
 .todo-table-container {
 
     width: 100%;
@@ -912,9 +903,6 @@ h1 {
     overflow-x: auto;
 
 }
-
-
-/* TABLE */
 
 #todoTable {
 
@@ -925,9 +913,6 @@ h1 {
     table-layout: fixed;
 
 }
-
-
-/* COLUMN WIDTHS */
 
 #todoTable th:nth-child(1) {
     width: 5%;
@@ -955,8 +940,6 @@ h1 {
 }
 
 
-/* TABLE TEXT */
-
 #todoTable td {
 
     color: black;
@@ -964,8 +947,6 @@ h1 {
 
 }
 
-
-/* ACTION BUTTONS */
 
 #todoTable .row-button {
     margin: 3px;
@@ -975,16 +956,12 @@ h1 {
 }
 
 
-/* COMPLETED TASKS */
-
 .todo-completed td:first-child {
     text-decoration: line-through;
     opacity: 0.5;
 
 }
 
-
-/* EMPTY MESSAGE */
 
 .todo-empty {
 
@@ -1002,8 +979,6 @@ h1 {
 }
 
 
-/* MOBILE */
-
 @media (max-width: 850px) {
     .todo-inputs {
         grid-template-columns: 1fr;
@@ -1011,9 +986,6 @@ h1 {
 
 }
 
-/* =========================================
-   TO-DO DRAG HANDLE
-   ========================================= */
 
 .drag-column {
     width: 5px;
@@ -1076,10 +1048,6 @@ h1 {
 }
 
 
-/* =========================================
-   STUDY NOTES
-========================================= */
-
 .note-section {
     margin-bottom: 24px;
 }
@@ -1101,10 +1069,6 @@ h1 {
     margin-top: 18px;
 }
 
-
-/* =========================================
-   STUDY FIGURES
-========================================= */
 
 .study-figures {
     margin-top: 40px;
@@ -1131,11 +1095,6 @@ h1 {
     line-height: 1.6;
 }
 
-
-/* =========================================
-   FLASHCARDS
-========================================= */
-
 .flashcard {
     margin-bottom: 16px;
 }
@@ -1148,11 +1107,6 @@ h1 {
 .flashcard p {
     margin-top: 18px;
 }
-
-
-/* =========================================
-   QUIZ
-========================================= */
 
 .quiz-question {
     margin-bottom: 20px;
@@ -1168,10 +1122,6 @@ h1 {
 
 
 
-/* =========================================
-   STUDY MATERIALS — MATHEMATICAL EQUATIONS
-========================================= */
-
 .study-equations {
     margin-top: 30px;
     margin-bottom: 30px;
@@ -1181,7 +1131,6 @@ h1 {
     margin-bottom: 20px;
 }
 
-/* Individual equation cards */
 
 .equation-card {
     margin-bottom: 18px;
@@ -1191,7 +1140,6 @@ h1 {
     margin-bottom: 15px;
 }
 
-/* LaTeX equation display */
 
 .equation-display {
     width: 100%;
@@ -1207,7 +1155,6 @@ h1 {
     font-size: 1.15rem;
 }
 
-/* Original PDF equation image fallback */
 
 .equation-image {
     display: block;
@@ -1220,27 +1167,23 @@ h1 {
     object-fit: contain;
 }
 
-/* Explanation underneath equation */
 
 .equation-context {
     margin-top: 15px;
     line-height: 1.7;
 }
 
-/* Source page */
 
 .equation-source {
     display: block;
     margin-top: 15px;
 }
 
-/* Revision notes */
 
 .revision-note-list li {
     line-height: 1.8;
 }
 
-/* MathJax rendering */
 
 mjx-container {
     max-width: 100%;
@@ -1252,7 +1195,6 @@ mjx-container[display="true"] {
     padding: 5px 0;
 }
 
-/* Mobile responsiveness */
 
 @media (max-width: 600px) {
 
@@ -1267,9 +1209,6 @@ mjx-container[display="true"] {
 
 }
 
-
-
-/* ---------- MOBILE ---------- */
 
 @media (max-width: none) {
 
