@@ -4,8 +4,6 @@ import jinja2
 import sqlite3
 from ortools.sat.python import cp_model
 
-
-# Maximum amount of one task done continuously
 MAX_BLOCK_MINUTES = 50
 
 
@@ -85,8 +83,7 @@ def generate_schedule(
     tasks = sort_tasks(tasks)
 
     schedule = []
-
-    # Keep track of how much of each task remains
+    
     remaining = []
 
     for task in tasks:
@@ -115,9 +112,7 @@ def generate_schedule(
 
         current_time = day_start
 
-        # ----------------------------
-        # BLOCKED TIMES FOR THIS DAY
-        # ----------------------------
+        
 
         blocked_times = []
 
@@ -131,7 +126,6 @@ def generate_schedule(
                 )
             )
 
-        # Other unavailable periods
         for unavailable_start, unavailable_end in unavailable_times:
 
             blocked_times.append(
@@ -150,9 +144,6 @@ def generate_schedule(
         blocked_times.sort()
 
 
-        # ----------------------------
-        # BUILD THE DAY
-        # ----------------------------
 
         while current_time < day_end:
 
@@ -166,9 +157,6 @@ def generate_schedule(
                 return schedule
 
 
-            # --------------------------------
-            # TRY TO CHANGE CATEGORY
-            # --------------------------------
 
             different_category = [
                 task
@@ -182,28 +170,17 @@ def generate_schedule(
                 candidates = unfinished
 
 
-            # --------------------------------
-            # PRIORITY + DEADLINE
-            # --------------------------------
 
             candidates = sort_tasks(candidates)
 
             task = candidates[0]
 
 
-            # --------------------------------
-            # WORK BLOCK LENGTH
-            # --------------------------------
-
             block_minutes = min(
                 MAX_BLOCK_MINUTES,
                 task["remaining_minutes"]
             )
 
-
-            # --------------------------------
-            # MOVE AROUND BLOCKED PERIODS
-            # --------------------------------
 
             current_time = move_past_blocked_time(
                 current_time,
@@ -214,16 +191,12 @@ def generate_schedule(
             block_end = current_time + timedelta(
                 minutes=block_minutes
             )
-
-
-            # Doesn't fit in this day
+            
             if block_end > day_end:
                 break
 
 
-            # --------------------------------
-            # ADD TASK TO SCHEDULE
-            # --------------------------------
+
 
             schedule.append(
                 {
@@ -244,9 +217,6 @@ def generate_schedule(
             previous_category = task["category"]
 
 
-            # --------------------------------
-            # BREAK
-            # --------------------------------
 
             current_time = block_end
 
