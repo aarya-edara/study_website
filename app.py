@@ -38,8 +38,7 @@ def add_timetable_entries(
 
         if day_end <= day_start:
             continue
-
-        # Find tasks scheduled for this day
+            
         day_tasks = sorted(
             [
                 item for item in schedule
@@ -48,7 +47,6 @@ def add_timetable_entries(
             key=lambda item: item["start"]
         )
 
-        # Build blocked periods
         blocked = []
 
         if meal_start and meal_end:
@@ -67,7 +65,7 @@ def add_timetable_entries(
                 "task": "Unavailable"
             })
 
-        # Create a timeline from all interval boundaries
+
         boundaries = {day_start, day_end}
 
         for item in day_tasks:
@@ -78,7 +76,7 @@ def add_timetable_entries(
             boundaries.add(max(day_start, min(day_end, item["start"])))
             boundaries.add(max(day_start, min(day_end, item["end"])))
 
-        # Include expected break endpoints after study sessions
+        
         for item in day_tasks:
             break_end = item["end"] + timedelta(minutes=break_minutes)
 
@@ -92,7 +90,7 @@ def add_timetable_entries(
             if start >= end:
                 continue
 
-            # Existing scheduled task
+            
             matching_task = next(
                 (
                     item for item in day_tasks
@@ -147,7 +145,7 @@ def add_timetable_entries(
 
             timetable.append(entry)
 
-    # Merge adjacent entries of the same non-task type
+
     merged = []
 
     for entry in timetable:
@@ -182,7 +180,6 @@ def create_schedule_page():
 @app.route("/schedule", methods=["POST"])
 def schedule_setup():
 
-    # Get information from task table
 
     task_names = request.form.getlist("task[]")
     categories = request.form.getlist("category[]")
@@ -192,7 +189,6 @@ def schedule_setup():
 
     tasks = []
 
-    # Turn each table row into a task
 
     for name, category, duration, priority, deadline in zip(
         task_names,
@@ -201,8 +197,7 @@ def schedule_setup():
         priorities,
         deadlines
     ):
-
-        # Ignore completely empty task rows
+        
         if not name.strip():
             continue
 
@@ -214,7 +209,7 @@ def schedule_setup():
             "deadline": deadline
         })
 
-    # Save tasks so page 2 can access them
+
 
     session["tasks"] = tasks
 
@@ -223,13 +218,10 @@ def schedule_setup():
 
     return render_template("schedule_setup.html")
 
-#generate the schedule
-
-
 @app.route("/generate-schedule", methods=["POST"])
 def create_schedule():
 
-    # get tasks from page 1
+
 
     stored_tasks = session.get("tasks", [])
 
@@ -237,7 +229,7 @@ def create_schedule():
 
     for task in stored_tasks:
 
-        # Convert deadline string into datetime
+
         deadline = datetime.fromisoformat(
             task["deadline"]
         )
@@ -254,8 +246,6 @@ def create_schedule():
     print(tasks)
 
 
-    # day start/end
-
     start_time = datetime.strptime(
         request.form["start_time"],
         "%H:%M"
@@ -266,19 +256,17 @@ def create_schedule():
         "%H:%M"
     ).time()
 
-    # number of days
+
 
     number_of_days = int(
         request.form["days"]
     )
 
-    # length of break
 
     break_minutes = int(
         request.form["break_length"]
     )
 
-    # meal/break time
 
     meal_start_string = request.form.get(
         "meal_start"
@@ -303,7 +291,6 @@ def create_schedule():
             "%H:%M"
         ).time()
 
-    # Unavailable times
 
     unavailable_starts = request.form.getlist(
         "unavailable_start[]"
@@ -336,7 +323,7 @@ def create_schedule():
                 )
             )
 
-    # generate schedule
+
 
     generated_schedule = generate_schedule(
         tasks=tasks,
@@ -365,7 +352,6 @@ def create_schedule():
     print("GENERATED SCHEDULE:")
     print(generated_schedule)
 
-    #calculate time remaining until deadline
 
     now = datetime.now()
 
@@ -390,9 +376,6 @@ def create_schedule():
                 f"{days:02d}:{hours:02d}:{minutes:02d}"
             )
 
-    # show result
-
-    # Save the generated schedule
     session["generated_schedule"] = [
         {
             **item,
@@ -412,7 +395,7 @@ def create_schedule():
 
     return redirect(url_for("show_schedule"))
 
-# run website
+
 
 @app.route("/your-schedule")
 def show_schedule():
@@ -425,12 +408,11 @@ def show_schedule():
 
         item = item.copy()
 
-        # Convert stored dates and times back into Python objects
         item["date"] = datetime.fromisoformat(item["date"]).date()
         item["start"] = datetime.fromisoformat(item["start"])
         item["end"] = datetime.fromisoformat(item["end"])
 
-        # Only actual tasks have deadlines
+        
         if item.get("deadline"):
             item["deadline"] = datetime.fromisoformat(
                 item["deadline"]
@@ -446,8 +428,6 @@ def show_schedule():
 
 
 
-# study materials page
-
 @app.route("/study-materials")
 def study_materials():
 
@@ -457,8 +437,6 @@ def study_materials():
         mode=None
     )
 
-
-# generate notes, flashcards, or quizzes
 
 @app.route("/generate-study-material", methods=["POST"])
 def generate_study():
@@ -477,7 +455,7 @@ def generate_study():
 
     pdf_bytes = uploaded_file.read()
 
-    # 15 MB maximum
+
     if len(pdf_bytes) > 15 * 1024 * 1024:
         return "PDF exceeds the 15 MB limit.", 400
 
