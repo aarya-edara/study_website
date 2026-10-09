@@ -15,8 +15,6 @@
 }
 
 
-/* ---------- WHOLE PAGE ---------- */
-
 * {
     box-sizing: border-box;
 }
@@ -36,7 +34,6 @@ body {
 }
 
 
-/* ---------- TITLE ---------- */
 
 h1 {
     margin: 0 0 40px 0;
@@ -52,16 +49,12 @@ h1 {
     letter-spacing: -0.04em;
 }
 
-
-/* ---------- FORM ---------- */
-
 form {
     width: 100%;
     max-width: none;
 }
 
 
-/* ---------- TABLE ---------- */
 
 table {
     width: 100%;
@@ -78,7 +71,6 @@ table {
 }
 
 
-/* ---------- TABLE HEADINGS ---------- */
 
 thead {
     background: var(--text);
@@ -98,7 +90,6 @@ th {
 }
 
 
-/* ---------- TABLE CELLS ---------- */
 
 td {
     padding: 10px;
@@ -118,8 +109,6 @@ tbody tr:last-child td {
 }
 
 
-/* ---------- ROW HOVER ---------- */
-
 tbody tr {
     transition: background 0.15s ease;
 }
@@ -128,8 +117,6 @@ tbody tr:hover {
     background: #faf9f6;
 }
 
-
-/* ---------- INPUTS ---------- */
 
 input,
 select {
@@ -154,8 +141,6 @@ select {
 }
 
 
-/* When user clicks an input */
-
 input:focus,
 select:focus {
     background: white;
@@ -164,21 +149,15 @@ select:focus {
 }
 
 
-/* Placeholder */
-
 input::placeholder {
     color: #aaa69f;
 }
 
 
-/* ---------- SELECT ---------- */
-
 select {
     cursor: pointer;
 }
 
-
-/* ---------- BUTTONS ---------- */
 
 button {
     border: none;
@@ -198,7 +177,6 @@ button:hover {
 }
 
 
-/* edit/done buttons for unavailable times questions */
 
 .row-button {
     padding: 8px 11px;
@@ -219,9 +197,6 @@ button:hover {
     color: white;
 }
 
-
-/* ---------- ADD TASK ---------- */
-
 button[onclick="addTask()"] {
     margin-top: 20px;
 
@@ -240,9 +215,6 @@ button[onclick="addTask()"]:hover {
     background: var(--text);
     color: white;
 }
-
-
-/* ---------- CREATE SCHEDULE ---------- */
 
 button[type="submit"] {
     margin-top: 20px;
@@ -263,16 +235,12 @@ button[type="submit"]:hover {
 }
 
 
-/* ---------- DISABLED / COMPLETED ROW ---------- */
-
 input:disabled,
 select:disabled {
     opacity: 0.55;
     cursor: not-allowed;
 }
 
-
-/* ---------- MOBILE ---------- */
 
 @media (max-width: 850px) {
 
@@ -293,17 +261,9 @@ select:disabled {
     }
 }
 
-
-/* ========================================
-   SCHEDULE SETUP PAGE
-   ======================================== */
-
 .setup-page {
     min-height: 100vh;
 }
-
-
-/* ---------- LOADING SCREEN ---------- */
 
 .loading-screen {
     position: fixed;
@@ -334,7 +294,6 @@ select:disabled {
 }
 
 
-/* ---------- THREE LOADING SQUARES ---------- */
 
 .loading-squares {
     display: flex;
@@ -385,18 +344,11 @@ select:disabled {
 }
 
 
-/* ---------- REMOVE LOADING SCREEN ---------- */
-
 .loading-screen.loading-finished {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
 }
-
-
-/* ========================================
-   QUESTIONNAIRE
-   ======================================== */
 
 .questionnaire {
     width: 100%;
@@ -419,8 +371,6 @@ select:disabled {
     transform: translateY(0);
 }
 
-
-/* ---------- INTRO ---------- */
 
 .setup-label {
     margin-bottom: 12px;
