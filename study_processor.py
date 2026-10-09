@@ -7,8 +7,6 @@ import pymupdf as fitz
 from difflib import SequenceMatcher
 
 
-# PATHS
-
 BASE_DIR = os.path.dirname(
     os.path.abspath(__file__)
 )
@@ -30,8 +28,6 @@ os.makedirs(
     exist_ok=True
 )
 
-
-# MODEL
 
 revision_model = None
 
@@ -56,14 +52,11 @@ def load_revision_model():
     return revision_model
 
 
-# GENERAL TEXT CLEANING
-
 def clean_text(text):
 
     if not text:
         return ""
 
-    # Remove URLs
     text = re.sub(
         r"https?://\S+",
         " ",
@@ -78,7 +71,6 @@ def clean_text(text):
         flags=re.IGNORECASE
     )
 
-    # Remove date/time headers
     text = re.sub(
         r"\b\d{1,2}/\d{1,2}/\d{4},?\s*"
         r"\d{1,2}:\d{2}\b",
@@ -86,14 +78,14 @@ def clean_text(text):
         text
     )
 
-    # Remove page indicators like 1/3
+    
     text = re.sub(
         r"\b\d+\s*/\s*\d+\b",
         " ",
         text
     )
 
-    # Remove ebook header
+    
     text = re.sub(
         r"\bMicroelectronic Circuits\b",
         " ",
@@ -101,7 +93,7 @@ def clean_text(text):
         flags=re.IGNORECASE
     )
 
-    # Rejoin words split across lines
+    
     text = re.sub(
         r"(\w)-\s*\n\s*(\w)",
         r"\1\2",
@@ -123,7 +115,7 @@ def clean_text(text):
     return text.strip()
 
 
-# NORMALISE PDF BLOCK TEXT
+
 
 def normalise_block_text(text):
 
@@ -136,33 +128,18 @@ def normalise_block_text(text):
         text
     )
 
-    return text.strip()
-
-
-# REAL FIGURE CAPTION DETECTION
+    return text.stri
+    
 
 def detect_real_figure_caption(text):
-    """
-    ACCEPTS:
 
-        Figure 5.12 The relative levels...
-        Fig. 5.12 The relative levels...
-        Figure 5.13 The iD-vDS characteristics...
-
-    REJECTS:
-
-        Refer to Fig. 5.12...
-        As Figure 5.12 shows...
-        Figure 5.13 shows a set of...
-        Figure 5.11(a) shows the circuit symbol...
-    """
 
     text = normalise_block_text(text)
 
     if not text:
         return None
 
-    # Caption must START with Figure or Fig.
+    
     match = re.match(
         r"^(?:Figure|Fig\.?)\s*"
         r"(\d+(?:\.\d+)*(?:[A-Za-z])?)"
@@ -182,17 +159,7 @@ def detect_real_figure_caption(text):
         match.group(2).strip()
     )
 
-    # Remove subfigure marker temporarily.
-    #
-    # Example:
-    #
-    # Figure 5.11(a) shows...
-    #
-    # becomes:
-    #
-    # shows...
-    #
-    # allowing us to identify it as BODY TEXT.
+    
 
     prose_test = re.sub(
         r"^\s*\([a-zA-Z0-9]+\)\s*",
@@ -224,7 +191,7 @@ def detect_real_figure_caption(text):
         ):
             return None
 
-    # Avoid huge body-text blocks
+    
     if len(remainder) > 500:
         return None
 
@@ -241,7 +208,6 @@ def detect_real_figure_caption(text):
     }
 
 
-# GET TEXT BLOCKS WITH PDF COORDINATES
 
 def get_page_blocks(page):
 
@@ -285,8 +251,6 @@ def get_page_blocks(page):
     return blocks
 
 
-# FIND REAL FIGURE CAPTIONS
-
 def find_real_figure_captions(page):
 
     blocks = get_page_blocks(
@@ -328,7 +292,7 @@ def find_real_figure_captions(page):
     return captions, blocks
 
 
-# BODY TEXT DETECTION
+
 
 def is_body_text_block(text):
 
@@ -339,13 +303,13 @@ def is_body_text_block(text):
     if not text:
         return False
 
-    # Genuine figure caption isn't body text
+    
     if detect_real_figure_caption(
         text
     ):
         return False
 
-    # Section heading
+    
     if re.match(
         r"^\d+(?:\.\d+)+\s+",
         text
@@ -354,7 +318,8 @@ def is_body_text_block(text):
 
     lower = text.lower()
 
-    # Page headers
+
+    
     if lower == "microelectronic circuits":
         return False
 
@@ -368,7 +333,7 @@ def is_body_text_block(text):
         text.split()
     )
 
-    # Normal textbook paragraph
+    
     if word_count >= 12:
         return True
 
@@ -387,27 +352,13 @@ def is_body_text_block(text):
     return False
 
 
-# GET ALL GRAPHICAL OBJECTS ABOVE CAPTION
 
 def get_visual_objects_above_caption(
     page,
     caption_rect
 ):
-    """
-    Find graphical objects above the genuine caption.
-
-    Includes:
-    - vector lines
-    - curves
-    - circuit symbols
-    - graph axes
-    - arrows
-    - embedded images
-    """
-
     objects = []
 
-    # VECTOR GRAPHICS
 
     try:
 
@@ -421,12 +372,11 @@ def get_visual_objects_above_caption(
 
             if rect is None:
                 continue
-
-            # Must be above caption
+                
             if rect.y1 >= caption_rect.y0:
                 continue
 
-            # Ignore microscopic marks
+            
             if (
                 rect.width < 2
                 and
@@ -445,7 +395,7 @@ def get_visual_objects_above_caption(
             error
         )
 
-    # EMBEDDED IMAGES
+    
 
     try:
 
@@ -490,16 +440,8 @@ def get_visual_objects_above_caption(
     return objects
 
 
-# GROUP GRAPHICAL OBJECTS
 
 def group_visual_objects(objects):
-    """
-    A PDF diagram may actually consist of hundreds of
-    independent lines/arrows/curves.
-
-    Group nearby objects so that a whole circuit diagram or
-    graph becomes one candidate figure.
-    """
 
     if not objects:
         return []
@@ -547,8 +489,7 @@ def group_visual_objects(objects):
                 fitz.Rect(rect)
             )
 
-    # Repeat merging because joining one group can cause
-    # another previously separate group to become connected.
+    
 
     changed = True
 
@@ -600,7 +541,7 @@ def group_visual_objects(objects):
     return groups
 
 
-# SCORE VISUAL GROUP
+
 
 def score_visual_group(
     group,
@@ -631,7 +572,6 @@ def score_visual_group(
         / page_rect.get_area()
     )
 
-    # Ignore tiny decorations
     if (
         width_ratio < 0.08
         and
@@ -641,17 +581,15 @@ def score_visual_group(
 
     score = 0
 
-    # Prefer large graphical areas
     score += (
         area_ratio * 500
     )
 
-    # Prefer diagram close to caption
     score -= (
         distance * 0.15
     )
 
-    # Prefer reasonably wide diagrams
+    
     score += (
         width_ratio * 50
     )
@@ -659,23 +597,12 @@ def score_visual_group(
     return score
 
 
-# FIND COMPLETE VISUAL
 
 def find_complete_visual(
     page,
     caption
 ):
-    """
-    Find the WHOLE diagram associated with a caption.
-
-    For a multi-part figure such as:
-
-        (a)       (b)       (c)
-
-    nearby graphical groups are combined so all three parts
-    are included.
-    """
-
+   
     caption_rect = caption[
         "rect"
     ]
@@ -711,7 +638,6 @@ def find_complete_visual(
         if distance < 0:
             continue
 
-        # Ignore graphics far above caption
         if distance > 280:
             continue
 
@@ -742,11 +668,7 @@ def find_complete_visual(
         possible_groups[0][1]
     )
 
-    # Expand to nearby graphical groups belonging to the
-    # SAME figure.
-    #
-    # This is particularly important for figures containing
-    # several circuit symbols.
+    
 
     changed = True
 
@@ -756,11 +678,11 @@ def find_complete_visual(
 
         for group in groups:
 
-            # Must be above caption
+
             if group.y1 > caption_rect.y0:
                 continue
 
-            # Horizontal separation
+            
             if group.x1 < best.x0:
 
                 horizontal_gap = (
@@ -779,7 +701,7 @@ def find_complete_visual(
 
                 horizontal_gap = 0
 
-            # Vertical separation
+            
             if group.y1 < best.y0:
 
                 vertical_gap = (
@@ -798,11 +720,7 @@ def find_complete_visual(
 
                 vertical_gap = 0
 
-            # Join nearby pieces.
-            #
-            # Larger horizontal allowance is deliberate:
-            # multi-part textbook diagrams may have spaces
-            # between (a), (b), and (c).
+            
             if (
                 horizontal_gap <= 110
                 and
@@ -831,34 +749,14 @@ def find_complete_visual(
     return best
 
 
-# INCLUDE TEXT LABELS INSIDE DIAGRAM
+
 
 def expand_for_diagram_labels(
     page,
     visual_rect,
     caption_rect
 ):
-    """
-    Important:
-
-    Diagram labels such as
-
-        G
-        D
-        S
-        vGS
-        vDS
-        Saturation
-        Triode
-        (a)
-        (b)
-        (c)
-
-    may be stored as PDF TEXT rather than vector graphics.
-
-    Include nearby short text blocks without including
-    ordinary textbook paragraphs.
-    """
+  
 
     blocks = get_page_blocks(
         page
@@ -887,7 +785,7 @@ def expand_for_diagram_labels(
                 "rect"
             ]
 
-            # Caption must remain outside image
+            
             if rect.y0 >= caption_rect.y0:
                 continue
 
@@ -900,7 +798,7 @@ def expand_for_diagram_labels(
                 "text"
             ]
 
-            # Do NOT absorb paragraphs
+            
             if is_body_text_block(
                 text
             ):
@@ -928,19 +826,13 @@ def expand_for_diagram_labels(
     return expanded
 
 
-# FALLBACK FIGURE REGION
 
 def fallback_figure_region(
     page,
     caption,
     blocks
 ):
-    """
-    Used if PyMuPDF can't identify the diagram's graphics.
 
-    Capture the region between the preceding paragraph
-    and the genuine caption.
-    """
 
     caption_rect = caption[
         "rect"
@@ -1001,19 +893,12 @@ def fallback_figure_region(
     )
 
 
-# GET WHOLE FIGURE REGION
 
 def get_actual_figure_region(
     page,
     caption,
     blocks
 ):
-    """
-    Return the WHOLE diagram.
-
-    This deliberately does NOT crop to one individual
-    curve, symbol, arrow or circuit element.
-    """
 
     caption_rect = caption[
         "rect"
@@ -1026,7 +911,6 @@ def get_actual_figure_region(
         caption
     )
 
-    # No graphics detected -> use fallback.
 
     if visual is None:
 
@@ -1036,7 +920,6 @@ def get_actual_figure_region(
             blocks
         )
 
-    # Add labels belonging to diagram.
 
     visual = (
         expand_for_diagram_labels(
@@ -1045,8 +928,6 @@ def get_actual_figure_region(
             caption_rect
         )
     )
-
-    # Add breathing room around complete diagram.
 
     horizontal_padding = 22
     vertical_padding = 18
@@ -1075,7 +956,7 @@ def get_actual_figure_region(
         + vertical_padding
     )
 
-    # Don't allow a weird narrow crop.
+    
 
     minimum_width = (
         page_rect.width * 0.45
@@ -1111,7 +992,6 @@ def get_actual_figure_region(
     )
 
 
-# SAVE FIGURE IMAGE
 
 def save_figure_image(
     page,
@@ -1140,8 +1020,7 @@ def save_figure_image(
         filename
     )
 
-    # Higher resolution for equations,
-    # graph labels and circuit symbols.
+    
     matrix = fitz.Matrix(
         2.5,
         2.5
@@ -1161,9 +1040,7 @@ def save_figure_image(
         "generated/"
         + filename
     )
-
-
-# EXTRACT FIGURES FROM PAGE
+    
 
 def extract_figures_from_page(
     page,
@@ -1185,8 +1062,7 @@ def extract_figures_from_page(
         figure_number = (
             caption["number"]
         )
-
-        # Avoid duplicates
+        
         if figure_number in seen_numbers:
             continue
 
@@ -1244,7 +1120,7 @@ def extract_figures_from_page(
     return figures
 
 
-# MATH EXTRACTION: character geometry + LaTeX + image fallback
+
 
 MATH_RELATIONS = set('=<>≤≥≈≠∝')
 MATH_OPERATORS = set('+−-×÷∑∫√±')
@@ -1265,14 +1141,14 @@ MATH_UNICODE = {
 
 
 def math_text_to_latex(value):
-    """Convert supported Unicode maths; never guess an absent operator."""
+
     for char, command in {**MATH_UNICODE, **MATH_GREEK}.items():
         value = value.replace(char, command)
     return re.sub(r'\s+', ' ', value).strip()
 
 
 def raw_math_line(line):
-    """Use character positions to identify small raised/lowered runs."""
+
     chars = []
     for span in line.get('spans', []):
         for ch in span.get('chars', []):
@@ -1282,7 +1158,7 @@ def raw_math_line(line):
     if not chars:
         return ''
     chars.sort(key=lambda item: item[1].x0)
-    # Font sizes, unlike glyph box heights, are relatively stable.
+
     sizes = sorted(size for c, r, size in chars if c.strip() and size > 0)
     if not sizes:
         return ''
@@ -1326,7 +1202,6 @@ def raw_math_line(line):
 
 
 def equation_line_candidate(value):
-    """Reject prose; require a short mathematical relation/expression."""
     if not value or len(value) > 145:
         return False
     if re.match(r'^(?:figure|fig\.?|table)\s*\d', value, re.I) or re.match(r'^\d+(?:\.\d+)+\s+', value):
@@ -1341,7 +1216,7 @@ def equation_line_candidate(value):
 
 
 def save_equation_crop(page, page_number, rect):
-    """Original source pixels are used when a faithful LaTeX parse is unavailable."""
+
     rect = fitz.Rect(rect) & page.rect
     if rect.is_empty or rect.width < 8 or rect.height < 4:
         return None
@@ -1353,11 +1228,7 @@ def save_equation_crop(page, page_number, rect):
 
 
 def extract_equations_from_page(page, page_number):
-    """Text equations, plus image fallback for formula-like non-text bands.
 
-    A PDF may draw an equation as vector paths or an embedded image.
-    Those cannot be truthfully converted to LaTeX from characters alone.
-    """
     raw = page.get_text('rawdict')
     equations, seen_rects = [], []
     for block in raw.get('blocks', []):
@@ -1369,8 +1240,6 @@ def extract_equations_from_page(page, page_number):
                 continue
             rect = fitz.Rect(line['bbox'])
             latex = math_text_to_latex(value)
-            # A long expression containing ambiguous PDF glyphs is safer
-            # as a screenshot than as an incorrectly inferred formula.
             suspicious = any(c in latex for c in ('�', '□', '\ufffd'))
             image = save_equation_crop(page, page_number,
                                        fitz.Rect(rect.x0-6, rect.y0-5, rect.x1+6, rect.y1+5))
@@ -1382,9 +1251,7 @@ def extract_equations_from_page(page, page_number):
             })
             seen_rects.append(rect)
 
-    # A conservative fallback for unextractable displayed equations:
-    # locate graphic-only bands immediately after prose that introduces
-    # an equation. Do not classify arbitrary figures as equations.
+    
     blocks = get_page_blocks(page)
     drawings = [fitz.Rect(d['rect']) for d in page.get_drawings()
                 if d.get('rect') is not None]
@@ -1400,7 +1267,7 @@ def extract_equations_from_page(page, page_number):
         bottom = min(bottom, top + 90)
         if bottom - top < 10:
             continue
-        # Restrict to a plausible narrow equation band, not a diagram.
+            
         region = fitz.Rect(page.rect.x0+32, top, page.rect.x1-32, bottom)
         relevant = [d for d in drawings if d.intersects(region) and d.width > 1 and d.height > 0]
         image_blocks = [fitz.Rect(b['bbox']) for b in raw.get('blocks', [])
@@ -1436,7 +1303,7 @@ def normalise_equation_for_comparison(equation):
 def remove_duplicate_equations(equations):
     result, seen = [], set()
     for eq in equations:
-        # Do not collapse distinct image-only equations with empty LaTeX.
+        
         key = normalise_equation_for_comparison(eq['equation']) or (eq['page'], eq['rect'])
         if key not in seen:
             seen.add(key)
@@ -1492,8 +1359,7 @@ def extract_pdf(pdf_bytes):
         page_number = (
             page_index + 1
         )
-
-        # NORMAL TEXT
+        
 
         raw_text = page.get_text(
             "text"
@@ -1513,7 +1379,7 @@ def extract_pdf(pdf_bytes):
                     cleaned_text
             })
 
-        # FIGURES
+        
 
         page_figures = (
             extract_figures_from_page(
@@ -1525,8 +1391,7 @@ def extract_pdf(pdf_bytes):
         figures.extend(
             page_figures
         )
-
-        # EQUATIONS
+        
 
         page_equations = (
             extract_equations_from_page(
@@ -1575,8 +1440,7 @@ def extract_pdf(pdf_bytes):
     if not pages:
 
         raise ValueError(
-            "No readable text was found in this PDF. "
-            "It may be a scanned/image-only PDF."
+            
         )
 
     return (
@@ -1588,7 +1452,6 @@ def extract_pdf(pdf_bytes):
     )
 
 
-# HEADING DETECTION
 
 def is_heading(line):
 
@@ -1597,9 +1460,7 @@ def is_heading(line):
     if not line:
         return False
 
-    # Examples:
-    # 5.2 Current-Voltage Characteristics
-    # 5.2.1 Circuit Symbol
+    
 
     if re.match(
         r"^\d+(?:\.\d+)+\s+[A-Z]",
@@ -1635,8 +1496,6 @@ def is_heading(line):
 
     return False
 
-
-# SPLIT PAGE INTO SECTIONS
 
 def split_page_into_sections(
     page_text
@@ -1707,7 +1566,6 @@ def split_page_into_sections(
     return sections
 
 
-# SENTENCE SPLITTING
 
 def split_into_sentences(text):
 
@@ -1761,7 +1619,6 @@ def split_into_sentences(text):
     return result
 
 
-# JUNK FILTER
 
 def is_junk_sentence(sentence):
 
@@ -1786,8 +1643,7 @@ def is_junk_sentence(sentence):
 
     if "oupereader" in lower:
         return True
-
-    # Figure captions aren't revision bullets.
+        
     if re.match(
         r"^(figure|fig\.?)\s+\d+",
         lower
@@ -1835,8 +1691,6 @@ def is_junk_sentence(sentence):
 
     return False
 
-
-# REVISION BONUS
 
 def revision_bonus(sentence):
 
@@ -1921,8 +1775,6 @@ def revision_bonus(sentence):
 
     return score
 
-
-# ANALYSE DOCUMENT WITH YOUR TRAINED MODEL
 
 def analyse_document(pages):
 
@@ -2018,8 +1870,6 @@ def analyse_document(pages):
 
     return results
 
-
-# DUPLICATE REMOVAL
 
 def normalise_similarity(text):
 
