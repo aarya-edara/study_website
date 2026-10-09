@@ -1956,7 +1956,6 @@ def remove_redundancy(items):
     return selected
 
 
-# SELECT REVISION MATERIAL
 
 def select_revision_content(
     analysed,
@@ -2006,7 +2005,6 @@ def select_revision_content(
     return selected
 
 
-# SIMPLIFY SENTENCES
 
 def simplify_sentence(sentence):
 
@@ -2056,7 +2054,6 @@ def simplify_sentence(sentence):
     return text
 
 
-# HEADING CLEANUP
 
 def clean_heading(heading):
 
@@ -2075,9 +2072,6 @@ def clean_heading(heading):
         heading
         or None
     )
-
-
-# GROUP NOTES
 
 def group_notes(selected):
 
@@ -2122,7 +2116,6 @@ def group_notes(selected):
     return groups
 
 
-# FIGURE RELEVANCE
 
 def figure_is_relevant(
     figure,
@@ -2171,7 +2164,6 @@ def select_figures(
     return relevant
 
 
-# REVISION NOTES
 
 def generate_notes(
     selected,
@@ -2256,8 +2248,6 @@ def generate_notes(
     }
 
 
-# DEFINITION EXTRACTION
-
 def extract_definition(sentence):
     """Extract term/meaning pairs from explicit, colon and implicit definitions."""
     text = re.sub(r"\s+", " ", sentence).strip()
@@ -2293,7 +2283,6 @@ def extract_definition(sentence):
                     and not re.match(r"^(?:there|this|that|it|these|those|we|they)\b", term, re.I)):
                 return term, meaning
 
-    # Examples: "A capacitor stores energy in an electric field."
     match = re.match(
         r"^((?:An?|The)\s+[A-Za-z][\w-]*(?:\s+[A-Za-z][\w-]*){0,4})\s+"
         r"(stores|measures|converts|represents|describes|consists of|contains|"
@@ -2306,7 +2295,6 @@ def extract_definition(sentence):
     return None
 
 
-# CONCEPT QUESTIONS
 
 def make_concept_question(sentence):
 
@@ -2412,8 +2400,6 @@ def make_concept_question(sentence):
     return None
 
 
-# FLASHCARDS
-
 def generate_flashcards(selected):
     """Create term-front/definition-back cards, preserving source examples."""
     cards = []
@@ -2432,7 +2418,7 @@ def generate_flashcards(selected):
             if concept:
                 front, answer = concept
             else:
-                # Use the source heading rather than inventing a definition.
+                
                 front = clean_heading(item.get("heading"))
                 if not front or len(sentence.split()) < 7:
                     continue
@@ -2454,8 +2440,6 @@ def generate_flashcards(selected):
 
     return {"type": "flashcards", "title": "Flashcards", "flashcards": cards}
 
-
-# QUIZ
 
 def generate_quiz(selected):
 
@@ -2503,8 +2487,6 @@ def generate_quiz(selected):
             )
 
             if not concept:
-                # Retain informative sentences as answers instead of
-                # silently discarding all material that lacks a pattern.
                 if len(sentence.split()) < 7:
                     continue
                 heading = clean_heading(item.get("heading"))
@@ -2552,8 +2534,6 @@ def generate_quiz(selected):
     }
 
 
-# MAIN FUNCTION CALLED BY APP.PY
-
 def generate_study_material(
     pdf_bytes,
     mode
@@ -2570,19 +2550,16 @@ def generate_study_material(
             "flashcards or quiz."
         )
 
-    # 1. Extract PDF text + figures + equations
 
     pages, figures, equations = extract_pdf(
         pdf_bytes
     )
 
-    # 2. Score content using YOUR trained model
 
     analysed = analyse_document(
         pages
     )
 
-    # 3. Select useful revision content
 
     selected = (
         select_revision_content(
@@ -2590,7 +2567,6 @@ def generate_study_material(
         )
     )
 
-    # 4. Generate requested output
 
     if mode == "notes":
 
