@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -33,10 +32,6 @@
     <link rel="stylesheet"
           href="{{ url_for('static', filename='schedulestyle.css') }}">
 
-    <!-- =========================
-         MATHJAX CONFIGURATION
-    ========================= -->
-
     <script>
         window.MathJax = {
             tex: {
@@ -66,9 +61,6 @@
         src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
     </script>
 
-    <!-- =========================
-         EQUATION STYLING
-    ========================= -->
 
     <style>
 
@@ -138,10 +130,6 @@
 <body>
 
 
-<!-- =========================
-     NAVIGATION
-========================= -->
-
 <nav class="top-nav">
 
     <a href="{{ url_for('home') }}"
@@ -172,10 +160,6 @@
 </nav>
 
 
-<!-- =========================
-     TITLE
-========================= -->
-
 <h1>
     Study Materials
 </h1>
@@ -188,10 +172,6 @@
 
 </p>
 
-
-<!-- =========================
-     UPLOAD FORM
-========================= -->
 
 <form
     method="POST"
@@ -246,10 +226,6 @@
 </form>
 
 
-<!-- =========================
-     ERROR
-========================= -->
-
 {% if error %}
 
 <p class="study-error">
@@ -259,9 +235,6 @@
 {% endif %}
 
 
-<!-- =========================
-     RESULTS
-========================= -->
 
 {% if result %}
 
@@ -272,10 +245,6 @@
         {{ result.title }}
     </h2>
 
-
-    <!-- =====================
-         REVISION NOTES
-    ====================== -->
 
     {% if mode == "notes" %}
 
@@ -319,11 +288,6 @@
 
         {% endfor %}
 
-
-        <!-- =====================
-             EXTRACTED EQUATIONS
-        ====================== -->
-
         {% if result.equations %}
 
         <div class="study-equations">
@@ -347,10 +311,6 @@
                 {% endif %}
 
 
-                <!-- =====================
-                     LATEX EQUATION
-                ====================== -->
-
                 {% if equation.equation %}
 
                 <div class="equation-display">
@@ -364,11 +324,6 @@
                 {% endif %}
 
 
-                <!-- =====================
-                     ORIGINAL PDF IMAGE
-                     FALLBACK
-                ====================== -->
-
                 {% if equation.image %}
 
                 <img
@@ -381,10 +336,6 @@
                 {% endif %}
 
 
-                <!-- =====================
-                     EQUATION CONTEXT
-                ====================== -->
-
                 {% if equation.context %}
 
                 <p class="equation-context">
@@ -393,10 +344,6 @@
 
                 {% endif %}
 
-
-                <!-- =====================
-                     SOURCE PAGE
-                ====================== -->
 
                 {% if equation.page %}
 
@@ -415,10 +362,6 @@
 
         {% endif %}
 
-
-        <!-- =====================
-             FIGURES
-        ====================== -->
 
         {% if result.figures %}
 
@@ -470,10 +413,6 @@
         {% endif %}
 
 
-    <!-- =====================
-         FLASHCARDS
-    ====================== -->
-
     {% elif mode == "flashcards" %}
 
 
@@ -515,10 +454,6 @@
 
         {% endif %}
 
-
-    <!-- =====================
-         QUIZ
-    ====================== -->
 
     {% elif mode == "quiz" %}
 
@@ -596,9 +531,6 @@
 {% endif %}
 
 
-<!-- =========================
-     QUIZ JAVASCRIPT
-========================= -->
 
 <script>
 
