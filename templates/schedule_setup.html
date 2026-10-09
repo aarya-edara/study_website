@@ -40,8 +40,6 @@
 </nav>
 
 
-    <!-- LOADING INTRO -->
-
     <div id="loadingScreen" class="loading-screen">
 
         <p class="loading-text">
@@ -57,13 +55,11 @@
     </div>
 
 
-    <!-- QUESTIONNAIRE -->
-
     <main id="questionnaire" class="questionnaire">
 
         <form method="POST" action="/generate-schedule">
 
-            <!-- START TIME -->
+
 
             <div class="question">
 
@@ -81,9 +77,6 @@
 
             </div>
 
-
-            <!-- END TIME -->
-
             <div class="question">
 
                 <label for="end-time">
@@ -100,8 +93,6 @@
 
             </div>
 
-
-            <!-- NUMBER OF DAYS -->
 
             <div class="question">
 
@@ -121,8 +112,6 @@
 
             </div>
 
-
-            <!-- MEAL TIMES -->
 
             <div class="question">
 
@@ -157,8 +146,6 @@
             </div>
 
 
-            <!-- UNAVAILABLE TIMES -->
-
 
 
             <div class="question">
@@ -168,8 +155,6 @@
                 </label>
 
                 <div id="unavailableSlots">
-
-                    <!-- FIRST TIME SLOT -->
                     <div class="unavailable-slot">
 
                         <div>
@@ -226,8 +211,6 @@
 </div>
 
 
-            <!-- BREAK PREFERENCE -->
-
             <div class="question">
 
                 <label for="break-length">
@@ -249,7 +232,6 @@
             </div>
 
 
-            <!-- SUBMIT -->
 
             <button
                 type="submit"
@@ -265,13 +247,6 @@
 
     <script>
 
-        /*
-        Show the loading animation first.
-
-        After 2.2 seconds:
-        - loading screen disappears
-        - questionnaire appears
-        */
 
         setTimeout(function () {
 
@@ -289,12 +264,6 @@
         }, 2200);
 
 
-
-
-
-
-
-        // ADD ANOTHER UNAVAILABLE TIME
 
         function addUnavailableSlot() {
 
@@ -349,9 +318,6 @@
             container.appendChild(slot);
         }
 
-
-        // FINISH A TIME SLOT
-
         function finishUnavailable(button) {
 
             const slot =
@@ -367,8 +333,6 @@
             slot.classList.add("slot-finished");
         }
 
-
-        // EDIT A FINISHED TIME SLOT
 
         function editUnavailable(button) {
 
