@@ -65,7 +65,6 @@
 
                 <tr>
 
-                    <!-- TASK -->
                     <td>
                         <input
                             type="text"
@@ -74,8 +73,6 @@
                         >
                     </td>
 
-
-                    <!-- CATEGORY -->
                     <td>
                         <input
                             type="text"
@@ -84,8 +81,6 @@
                         >
                     </td>
 
-
-                    <!-- DURATION -->
                     <td>
                         <input
                             type="number"
@@ -98,7 +93,6 @@
                     </td>
 
 
-                    <!-- PRIORITY -->
                     <td>
                         <select name="priority[]">
 
@@ -117,8 +111,6 @@
                         </select>
                     </td>
 
-
-                    <!-- DEADLINE -->
                     <td>
                         <input
                             type="datetime-local"
@@ -127,7 +119,6 @@
                     </td>
 
 
-                    <!-- EDIT / DONE -->
                     <td>
 
                         <button
@@ -172,7 +163,6 @@
 
     <script>
 
-        // ADD A NEW TASK ROW
 
         function addTask() {
 
@@ -255,9 +245,6 @@
             `;
         }
 
-
-        // LOCK THE ROW WHEN DONE
-
         function doneRow(button) {
             const row = button.closest("tr");
 
@@ -272,9 +259,6 @@
                 select.style.pointerEvents = "none";
             });
         }
-
-
-        // UNLOCK THE ROW WHEN EDIT IS PRESSED
 
         function editRow(button) {
             const row = button.closest("tr");
