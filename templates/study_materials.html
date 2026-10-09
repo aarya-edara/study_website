@@ -1,0 +1,637 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Study Materials | Schedule and Study!
+    </title>
+
+    <link rel="icon"
+          type="image/png"
+          href="{{ url_for('static', filename='favicon2.png') }}">
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600;1,700&display=swap"
+          rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='schedulestyle.css') }}">
+
+    <!-- =========================
+         MATHJAX CONFIGURATION
+    ========================= -->
+
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [
+                    ['\\(', '\\)']
+                ],
+                displayMath: [
+                    ['\\[', '\\]']
+                ],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: [
+                    'script',
+                    'noscript',
+                    'style',
+                    'textarea',
+                    'pre',
+                    'code'
+                ]
+            }
+        };
+    </script>
+
+    <script
+        defer
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+
+    <!-- =========================
+         EQUATION STYLING
+    ========================= -->
+
+    <style>
+
+        .study-equations {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .study-equations h2 {
+            margin-bottom: 20px;
+        }
+
+        .equation-card {
+            margin-bottom: 18px;
+        }
+
+        .equation-card h3 {
+            margin-bottom: 15px;
+        }
+
+        .equation-display {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 18px 10px;
+            text-align: center;
+            font-size: 1.15rem;
+        }
+
+        .equation-image {
+            display: block;
+            max-width: 100%;
+            height: auto;
+            margin: 15px auto;
+            object-fit: contain;
+        }
+
+        .equation-context {
+            margin-top: 15px;
+            line-height: 1.7;
+        }
+
+        .equation-source {
+            display: block;
+            margin-top: 15px;
+        }
+
+        .revision-note-list li {
+            line-height: 1.8;
+        }
+
+        mjx-container {
+            max-width: 100%;
+        }
+
+        mjx-container[display="true"] {
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 5px 0;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================
+     NAVIGATION
+========================= -->
+
+<nav class="top-nav">
+
+    <a href="{{ url_for('home') }}"
+       class="site-name">
+        Home
+    </a>
+
+    <a href="{{ url_for('create_schedule_page') }}"
+       class="site-name">
+        Create Schedule
+    </a>
+
+    <a href="{{ url_for('show_schedule') }}"
+       class="site-name">
+        My Schedule
+    </a>
+
+    <a href="{{ url_for('todo_list') }}"
+       class="site-name">
+        To-Do List
+    </a>
+
+    <a href="{{ url_for('study_materials') }}"
+       class="site-name">
+        Study Materials
+    </a>
+
+</nav>
+
+
+<!-- =========================
+     TITLE
+========================= -->
+
+<h1>
+    Study Materials
+</h1>
+
+
+<p class="study-description">
+
+    Upload your course material to generate revision notes,
+    flashcards or practice quizzes!
+
+</p>
+
+
+<!-- =========================
+     UPLOAD FORM
+========================= -->
+
+<form
+    method="POST"
+    action="{{ url_for('generate_study') }}"
+    enctype="multipart/form-data"
+    class="study-upload-form"
+>
+
+    <label for="pdf">
+        Upload your PDF
+    </label>
+
+    <input
+        type="file"
+        id="pdf"
+        name="pdf"
+        accept=".pdf,application/pdf"
+        required
+    >
+
+
+    <label for="mode">
+        What would you like to generate?
+    </label>
+
+
+    <select
+        name="mode"
+        id="mode"
+        required
+    >
+
+        <option value="notes">
+            Revision Notes
+        </option>
+
+        <option value="flashcards">
+            Flashcards
+        </option>
+
+        <option value="quiz">
+            Practice Quiz
+        </option>
+
+    </select>
+
+
+    <button type="submit">
+        Generate →
+    </button>
+
+</form>
+
+
+<!-- =========================
+     ERROR
+========================= -->
+
+{% if error %}
+
+<p class="study-error">
+    {{ error }}
+</p>
+
+{% endif %}
+
+
+<!-- =========================
+     RESULTS
+========================= -->
+
+{% if result %}
+
+<section class="study-results">
+
+
+    <h2>
+        {{ result.title }}
+    </h2>
+
+
+    <!-- =====================
+         REVISION NOTES
+    ====================== -->
+
+    {% if mode == "notes" %}
+
+
+        {% for section in result.sections %}
+
+        <article class="study-card note-section">
+
+            <h3>
+                {{ section.heading }}
+            </h3>
+
+
+            <ul class="revision-note-list">
+
+                {% for bullet in section.bullets %}
+
+                <li>
+                    {{ bullet }}
+                </li>
+
+                {% endfor %}
+
+            </ul>
+
+
+            {% if section.pages %}
+
+            <small class="source-pages">
+
+                Source:
+                Page{% if section.pages|length > 1 %}s{% endif %}
+
+                {{ section.pages | join(", ") }}
+
+            </small>
+
+            {% endif %}
+
+        </article>
+
+        {% endfor %}
+
+
+        <!-- =====================
+             EXTRACTED EQUATIONS
+        ====================== -->
+
+        {% if result.equations %}
+
+        <div class="study-equations">
+
+            <h2>
+                Key Equations
+            </h2>
+
+
+            {% for equation in result.equations %}
+
+            <article class="study-card equation-card">
+
+
+                {% if equation.section %}
+
+                <h3>
+                    {{ equation.section }}
+                </h3>
+
+                {% endif %}
+
+
+                <!-- =====================
+                     LATEX EQUATION
+                ====================== -->
+
+                {% if equation.equation %}
+
+                <div class="equation-display">
+
+                    \[
+                        {{ equation.equation }}
+                    \]
+
+                </div>
+
+                {% endif %}
+
+
+                <!-- =====================
+                     ORIGINAL PDF IMAGE
+                     FALLBACK
+                ====================== -->
+
+                {% if equation.image %}
+
+                <img
+                    src="{{ url_for('static', filename=equation.image) }}"
+                    alt="Equation extracted from page {{ equation.page }}"
+                    class="equation-image"
+                    loading="lazy"
+                >
+
+                {% endif %}
+
+
+                <!-- =====================
+                     EQUATION CONTEXT
+                ====================== -->
+
+                {% if equation.context %}
+
+                <p class="equation-context">
+                    {{ equation.context }}
+                </p>
+
+                {% endif %}
+
+
+                <!-- =====================
+                     SOURCE PAGE
+                ====================== -->
+
+                {% if equation.page %}
+
+                <small class="equation-source">
+                    Source: Page {{ equation.page }}
+                </small>
+
+                {% endif %}
+
+
+            </article>
+
+            {% endfor %}
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- =====================
+             FIGURES
+        ====================== -->
+
+        {% if result.figures %}
+
+        <div class="study-figures">
+
+            <h2>
+                Key Figures
+            </h2>
+
+
+            {% for figure in result.figures %}
+
+            <figure class="study-card study-figure">
+
+                <img
+                    src="{{ url_for('static', filename=figure.image) }}"
+                    alt="Figure {{ figure.number }}"
+                    class="study-figure-image"
+                    loading="lazy"
+                >
+
+
+                <figcaption>
+
+                    <strong>
+                        Figure {{ figure.number }}
+                    </strong>
+
+                    {% if figure.caption %}
+
+                        — {{ figure.caption }}
+
+                    {% endif %}
+
+                    <br>
+
+                    <small>
+                        Source: Page {{ figure.page }}
+                    </small>
+
+                </figcaption>
+
+            </figure>
+
+            {% endfor %}
+
+        </div>
+
+        {% endif %}
+
+
+    <!-- =====================
+         FLASHCARDS
+    ====================== -->
+
+    {% elif mode == "flashcards" %}
+
+
+        {% if result.flashcards %}
+
+            {% for card in result.flashcards %}
+
+            <details class="study-card flashcard">
+
+                <summary>
+                    {{ card.question }}
+                </summary>
+
+
+                <p>
+                    {{ card.answer }}
+                </p>
+
+
+                <small>
+                    Source: Page {{ card.source_page }}
+                </small>
+
+            </details>
+
+            {% endfor %}
+
+
+        {% else %}
+
+            <article class="study-card">
+
+                <p>
+                    No suitable flashcards could be generated
+                    from this PDF.
+                </p>
+
+            </article>
+
+        {% endif %}
+
+
+    <!-- =====================
+         QUIZ
+    ====================== -->
+
+    {% elif mode == "quiz" %}
+
+
+        {% if result.questions %}
+
+            {% for question in result.questions %}
+
+            <article class="study-card quiz-question">
+
+
+                <h3>
+
+                    {{ loop.index }}.
+                    {{ question.question }}
+
+                </h3>
+
+
+                <button
+                    type="button"
+                    class="check-answer-button"
+                    onclick="showAnswer(this)"
+                >
+                    Show Answer
+                </button>
+
+
+                <div
+                    class="quiz-answer"
+                    hidden
+                >
+
+                    <p>
+                        <strong>
+                            Answer:
+                        </strong>
+
+                        {{ question.answer }}
+                    </p>
+
+
+                    <small>
+                        Source:
+                        Page {{ question.source_page }}
+                    </small>
+
+                </div>
+
+
+            </article>
+
+            {% endfor %}
+
+
+        {% else %}
+
+            <article class="study-card">
+
+                <p>
+                    No suitable quiz questions could be generated
+                    from this PDF.
+                </p>
+
+            </article>
+
+        {% endif %}
+
+
+    {% endif %}
+
+
+</section>
+
+{% endif %}
+
+
+<!-- =========================
+     QUIZ JAVASCRIPT
+========================= -->
+
+<script>
+
+function showAnswer(button) {
+
+    const question =
+        button.closest(".quiz-question");
+
+    const answer =
+        question.querySelector(".quiz-answer");
+
+
+    if (answer.hidden) {
+
+        answer.hidden = false;
+
+        button.textContent =
+            "Hide Answer";
+
+    } else {
+
+        answer.hidden = true;
+
+        button.textContent =
+            "Show Answer";
+
+    }
+
+}
+
+</script>
+
+
+</body>
+
+</html>

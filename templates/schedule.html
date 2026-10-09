@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule and Study!</title>
+    <link rel="icon" type="image/png" href="../static/favicon2.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../static/schedulestyle.css">
+
+</head>
+
+<body>
+
+
+
+<nav class="top-nav">
+
+    <a href="{{ url_for('home') }}" class="site-name">
+        Home
+    </a>
+
+    <a href="{{ url_for('create_schedule_page') }}" class="site-name">
+        Create Schedule
+    </a>
+
+    <a href="{{ url_for('show_schedule') }}" class="site-name">
+        My Schedule
+    </a>
+
+    <a href="{{ url_for('todo_list') }}" class="site-name">
+        To-Do List
+    </a>
+
+    <a href="{{ url_for('study_materials') }}" class="site-name">
+        Study Materials
+    </a>
+
+</nav>
+
+
+
+    <h1>Schedule Maker</h1>
+
+    <form method="POST" action="{{ url_for('schedule_setup') }}">
+
+        <table id="scheduleTable">
+
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Category</th>
+                    <th>Time Duration</th>
+                    <th>Priority</th>
+                    <th>Deadline</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody id="scheduleBody">
+
+                <tr>
+
+                    <!-- TASK -->
+                    <td>
+                        <input
+                            type="text"
+                            name="task[]"
+                            placeholder="Name of task/assignment"
+                        >
+                    </td>
+
+
+                    <!-- CATEGORY -->
+                    <td>
+                        <input
+                            type="text"
+                            name="category[]"
+                            placeholder="e.g. Signals & Systems"
+                        >
+                    </td>
+
+
+                    <!-- DURATION -->
+                    <td>
+                        <input
+                            type="number"
+                            name="duration[]"
+                            min="0"
+                            step="5"
+                            value="0"
+                            placeholder="In minutes"
+                        >
+                    </td>
+
+
+                    <!-- PRIORITY -->
+                    <td>
+                        <select name="priority[]">
+
+                            <option value="low">
+                                Low
+                            </option>
+
+                            <option value="medium" selected>
+                                Medium
+                            </option>
+
+                            <option value="high">
+                                High
+                            </option>
+
+                        </select>
+                    </td>
+
+
+                    <!-- DEADLINE -->
+                    <td>
+                        <input
+                            type="datetime-local"
+                            name="deadline[]"
+                        >
+                    </td>
+
+
+                    <!-- EDIT / DONE -->
+                    <td>
+
+                        <button
+                            type="button"
+                            class="row-button"
+                            onclick="editRow(this)"
+                        >
+                            Edit
+                        </button>
+
+                        <button
+                            type="button"
+                            class="row-button"
+                            onclick="doneRow(this)"
+                        >
+                            Done
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+
+        <button
+            type="button"
+            onclick="addTask()"
+        >
+            + Add Task
+        </button>
+
+
+        <button type="submit">
+            Create Schedule
+        </button>
+
+    </form>
+
+
+    <script>
+
+        // ADD A NEW TASK ROW
+
+        function addTask() {
+
+            const table = document.getElementById("scheduleBody");
+
+            const row = table.insertRow();
+
+            row.innerHTML = `
+                <td>
+                    <input
+                        type="text"
+                        name="task[]"
+                        placeholder="Enter task"
+                    >
+                </td>
+
+                <td>
+                    <input
+                        type="text"
+                        name="category[]"
+                        placeholder="Category"
+                    >
+                </td>
+
+                <td>
+                    <input
+                        type="number"
+                        name="duration[]"
+                        min="0"
+                        step="5"
+                        value="0"
+                        placeholder="Minutes"
+                    >
+                </td>
+
+                <td>
+                    <select name="priority[]">
+
+                        <option value="low">
+                            Low
+                        </option>
+
+                        <option value="medium" selected>
+                            Medium
+                        </option>
+
+                        <option value="high">
+                            High
+                        </option>
+
+                    </select>
+                </td>
+
+                <td>
+                    <input
+                        type="datetime-local"
+                        name="deadline[]"
+                    >
+                </td>
+
+                <td>
+
+                    <button
+                        type="button"
+                        class="row-button"
+                        onclick="editRow(this)"
+                    >
+                        Edit
+                    </button>
+
+                    <button
+                        type="button"
+                        class="row-button"
+                        onclick="doneRow(this)"
+                    >
+                        Done
+                    </button>
+
+                </td>
+            `;
+        }
+
+
+        // LOCK THE ROW WHEN DONE
+
+        function doneRow(button) {
+            const row = button.closest("tr");
+
+            const inputs = row.querySelectorAll("input");
+            const selects = row.querySelectorAll("select");
+
+            inputs.forEach(function(input) {
+                input.readOnly = true;
+            });
+
+            selects.forEach(function(select) {
+                select.style.pointerEvents = "none";
+            });
+        }
+
+
+        // UNLOCK THE ROW WHEN EDIT IS PRESSED
+
+        function editRow(button) {
+            const row = button.closest("tr");
+
+            const inputs = row.querySelectorAll("input");
+            const selects = row.querySelectorAll("select");
+
+            inputs.forEach(function(input) {
+                input.readOnly = false;
+            });
+
+            selects.forEach(function(select) {
+                select.style.pointerEvents = "auto";
+            });
+        }
+
+    </script>
+
+</body>
+
+</html>

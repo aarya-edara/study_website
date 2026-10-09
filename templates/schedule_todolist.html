@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>My To-Do List</title>
+
+    <link rel="icon"
+          type="image/png"
+          href="{{ url_for('static', filename='favicon2.png') }}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600;1,700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='schedulestyle.css') }}">
+
+</head>
+
+
+<body>
+
+
+<!-- ==========================================
+     NAVIGATION
+     ========================================== -->
+
+<nav class="top-nav">
+
+    <a href="{{ url_for('home') }}" class="site-name">
+        Home
+    </a>
+
+    <a href="{{ url_for('create_schedule_page') }}" class="site-name">
+        Create Schedule
+    </a>
+
+    <a href="{{ url_for('show_schedule') }}" class="site-name">
+        My Schedule
+    </a>
+
+    <a href="{{ url_for('todo_list') }}" class="site-name">
+        To-Do List
+    </a>
+
+    <a href="{{ url_for('study_materials') }}" class="site-name">
+        Study Materials
+    </a>
+
+</nav>
+
+
+
+<!-- ==========================================
+     PAGE TITLE
+     ========================================== -->
+
+<h1>My To-Do List</h1>
+
+
+
+<!-- ==========================================
+     ADD TASK FORM
+     ========================================== -->
+
+<form id="todoForm">
+
+    <div class="todo-inputs">
+
+
+        <!-- TASK NAME -->
+
+        <input
+            type="text"
+            id="taskName"
+            placeholder="Task name"
+            required
+        >
+
+
+        <!-- MODULE / CATEGORY -->
+
+        <input
+            type="text"
+            id="taskCategory"
+            placeholder="Module"
+        >
+
+
+        <!-- PRIORITY -->
+
+        <select id="taskPriority">
+
+            <option value="low">
+                Low
+            </option>
+
+            <option value="medium" selected>
+                Medium
+            </option>
+
+            <option value="high">
+                High
+            </option>
+
+        </select>
+
+
+        <!-- DEADLINE -->
+
+        <input
+            type="datetime-local"
+            id="taskDeadline"
+            required
+        >
+
+
+        <!-- ADD BUTTON -->
+
+        <button
+            type="submit"
+            class="todo-add-button"
+            id="addTaskButton"
+        >
+            + Add Task
+        </button>
+
+    </div>
+
+</form>
+
+
+
+<!-- ==========================================
+     TASK TABLE
+     ========================================== -->
+
+<div class="todo-table-container">
+
+    <table id="todoTable">
+
+        <thead>
+
+            <tr>
+
+                <!-- DRAG HANDLE COLUMN -->
+                <th class="drag-column"></th>
+
+                <th>Task</th>
+
+                <th>Module</th>
+
+                <th>Priority</th>
+
+                <th>Deadline</th>
+
+                <th>Actions</th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody id="todoBody">
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+
+<!-- EMPTY MESSAGE -->
+
+<p id="emptyMessage" class="todo-empty">
+    No tasks added yet.
+</p>
+
+
+
+<!-- ==========================================
+     JAVASCRIPT
+     ========================================== -->
+
+<script>
+
+    /*
+    =============================================
+    STORAGE
+    =============================================
+    */
+
+    const STORAGE_KEY = "scheduleMaker.todo.v1";
+
+    let tasks = [];
+
+    let editingTaskId = null;
+
+    let draggedIndex = null;
+
+
+
+    /*
+    =============================================
+    LOAD SAVED TASKS
+    =============================================
+    */
+
+    try {
+
+        const saved = JSON.parse(
+            localStorage.getItem(STORAGE_KEY) || "[]"
+        );
+
+        tasks = Array.isArray(saved) ? saved : [];
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "Could not load saved tasks:",
+            error
+        );
+
+        tasks = [];
+
+    }
+
+
+
+
+
+
+
+
+
+
+    /* SAVE TASKS */
+
+    function saveTasks() {
+
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify(tasks)
+        );
+
+    }
+
+
+    /* GIVE EVERY TASK A PERMANENT ID */
+
+    let addedMissingIds = false;
+
+    tasks.forEach(task => {
+
+        if (!task.id) {
+
+            task.id = crypto.randomUUID();
+
+            addedMissingIds = true;
+
+        }
+
+    });
+
+
+    if (addedMissingIds) {
+
+        saveTasks();
+
+    }
+
+
+
+
+
+
+
+    /* DISPLAY TASKS */
+
+    function displayTasks() {
+
+        const body =
+            document.getElementById("todoBody");
+
+
+        // Remove existing rows
+
+        body.replaceChildren();
+
+
+
+        /*
+        -----------------------------------------
+        CREATE EACH TASK ROW
+        -----------------------------------------
+        */
+
+        tasks.forEach((task, index) => {
+
+
+            const row =
+                document.createElement("tr");
+
+
+            /*
+            COMPLETED TASK
+            */
+
+            if (task.completed || task.done) {
+
+                row.classList.add(
+                    "todo-completed"
+                );
+
+            }
+
+
+
+            /*
+            =====================================
+            DRAG HANDLE
+            =====================================
+            */
+
+            const dragCell =
+                document.createElement("td");
+
+            dragCell.className =
+                "drag-cell";
+
+
+            const dragHandle =
+                document.createElement("span");
+
+            dragHandle.className =
+                "drag-handle";
+
+            dragHandle.textContent =
+                "≡";
+
+            dragHandle.title =
+                "Drag to reorder";
+
+
+            dragCell.appendChild(
+                dragHandle
+            );
+
+            row.appendChild(
+                dragCell
+            );
+
+
+
+            /*
+            =====================================
+            TASK NAME
+            =====================================
+            */
+
+            const taskCell =
+                document.createElement("td");
+
+            taskCell.textContent =
+                task.name;
+
+            row.appendChild(
+                taskCell
+            );
+
+
+
+            /*
+            =====================================
+            MODULE / CATEGORY
+            =====================================
+            */
+
+            const categoryCell =
+                document.createElement("td");
+
+            categoryCell.textContent =
+                task.category || "—";
+
+            row.appendChild(
+                categoryCell
+            );
+
+
+
+            /*
+            =====================================
+            PRIORITY
+            =====================================
+            */
+
+            const priorityCell =
+                document.createElement("td");
+
+
+            const badge =
+                document.createElement("span");
+
+
+            badge.className =
+                "priority-label priority-" +
+                task.priority;
+
+
+            badge.textContent =
+                task.priority;
+
+
+            priorityCell.appendChild(
+                badge
+            );
+
+
+            row.appendChild(
+                priorityCell
+            );
+
+
+
+            /*
+            =====================================
+            DEADLINE
+            =====================================
+            */
+
+            const deadlineCell =
+                document.createElement("td");
+
+
+            if (task.deadline) {
+
+                deadlineCell.textContent =
+                    new Date(
+                        task.deadline
+                    ).toLocaleString();
+
+            }
+
+            else {
+
+                deadlineCell.textContent =
+                    "—";
+
+            }
+
+
+            row.appendChild(
+                deadlineCell
+            );
+
+
+
+            /*
+            =====================================
+            ACTION BUTTONS
+            =====================================
+            */
+
+            const actions =
+                document.createElement("td");
+
+
+
+            /*
+            -------------------------------------
+            DONE BUTTON
+            -------------------------------------
+            */
+
+            const doneButton =
+                document.createElement("button");
+
+
+            doneButton.type =
+                "button";
+
+
+            doneButton.className =
+                "row-button";
+
+
+            doneButton.textContent =
+                (task.completed || task.done)
+                    ? "Undo"
+                    : "Done";
+
+
+            doneButton.onclick =
+                function() {
+
+
+                    task.completed =
+                        !(task.completed || task.done);
+
+
+                    task.done =
+                        task.completed;
+
+
+                    saveTasks();
+
+                    displayTasks();
+
+                };
+
+
+
+
+            // =====================================
+            // EDIT BUTTON
+            // =====================================
+
+            const editButton =
+                document.createElement("button");
+
+            editButton.type = "button";
+
+            editButton.className = "row-button";
+
+            editButton.textContent = "Edit";
+
+
+            editButton.onclick = function() {
+
+                // Give older saved tasks an ID if they
+                // were created before IDs were added.
+
+                if (!task.id) {
+
+                    task.id = crypto.randomUUID();
+
+                    saveTasks();
+
+                }
+
+
+                editingTaskId = task.id;
+
+
+                document.getElementById("taskName").value =
+                    task.name || "";
+
+
+                document.getElementById("taskCategory").value =
+                    task.category || "";
+
+
+                document.getElementById("taskPriority").value =
+                    task.priority || "medium";
+
+
+                document.getElementById("taskDeadline").value =
+                    task.deadline || "";
+
+
+                document.getElementById("addTaskButton").textContent =
+                    "Save Changes";
+
+
+                document.getElementById("taskName").focus();
+
+
+                window.scrollTo({
+
+                    top: 0,
+
+                    behavior: "smooth"
+
+                });
+
+            };
+
+            /*
+            -------------------------------------
+            DELETE BUTTON
+            -------------------------------------
+            */
+
+            const deleteButton =
+                document.createElement("button");
+
+
+            deleteButton.type =
+                "button";
+
+
+            deleteButton.className =
+                "row-button";
+
+
+            deleteButton.textContent =
+                "Delete";
+
+
+            deleteButton.onclick =
+                function() {
+
+
+                    if (
+                        confirm(
+                            "Delete this task?"
+                        )
+                    ) {
+
+
+                        tasks.splice(
+                            index,
+                            1
+                        );
+
+
+                        editingTaskId =
+                            null;
+
+
+                        document.getElementById(
+                            "todoForm"
+                        ).reset();
+
+
+                        document.getElementById(
+                            "addTaskButton"
+                        ).textContent =
+                            "+ Add Task";
+
+
+                        saveTasks();
+
+                        displayTasks();
+
+                    }
+
+                };
+
+
+
+            /*
+            ADD BUTTONS TO CELL
+            */
+
+            actions.appendChild(
+                doneButton
+            );
+
+
+            actions.appendChild(
+                editButton
+            );
+
+
+            actions.appendChild(
+                deleteButton
+            );
+
+
+            row.appendChild(
+                actions
+            );
+
+
+
+            /*
+            =====================================
+            DRAG AND DROP EVENTS
+            =====================================
+            */
+
+
+            /*
+            Only activate dragging when
+            the ≡ handle is grabbed.
+            */
+
+            dragHandle.addEventListener(
+                "mousedown",
+                function() {
+
+                    row.draggable =
+                        true;
+
+                }
+            );
+
+
+            dragHandle.addEventListener(
+                "mouseup",
+                function() {
+
+                    row.draggable =
+                        false;
+
+                }
+            );
+
+
+
+            /*
+            DRAG START
+            */
+
+            row.addEventListener(
+                "dragstart",
+                function(event) {
+
+
+                    draggedIndex =
+                        index;
+
+
+                    row.classList.add(
+                        "dragging"
+                    );
+
+
+                    event.dataTransfer.effectAllowed =
+                        "move";
+
+
+                    event.dataTransfer.setData(
+                        "text/plain",
+                        String(index)
+                    );
+
+                }
+            );
+
+
+
+            /*
+            DRAG OVER
+            */
+
+            row.addEventListener(
+                "dragover",
+                function(event) {
+
+                    event.preventDefault();
+
+                    event.dataTransfer.dropEffect =
+                        "move";
+
+                }
+            );
+
+
+
+            /*
+            VISUAL POSITION WHILE DRAGGING
+            */
+
+            row.addEventListener(
+                "dragenter",
+                function(event) {
+
+                    event.preventDefault();
+
+
+                    if (
+                        draggedIndex === null ||
+                        draggedIndex === index
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    const body =
+                        document.getElementById(
+                            "todoBody"
+                        );
+
+
+                    const draggingRow =
+                        body.querySelector(
+                            ".dragging"
+                        );
+
+
+                    if (!draggingRow) {
+
+                        return;
+
+                    }
+
+
+                    const box =
+                        row.getBoundingClientRect();
+
+
+                    const middle =
+                        box.top +
+                        box.height / 2;
+
+
+                    if (
+                        event.clientY <
+                        middle
+                    ) {
+
+                        body.insertBefore(
+                            draggingRow,
+                            row
+                        );
+
+                    }
+
+                    else {
+
+                        body.insertBefore(
+                            draggingRow,
+                            row.nextSibling
+                        );
+
+                    }
+
+                }
+            );
+
+
+
+            /*
+            DROP
+            */
+
+            row.addEventListener(
+                "drop",
+                function(event) {
+
+                    event.preventDefault();
+
+
+                    if (
+                        draggedIndex === null
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    /*
+                    Find the visual order of
+                    the rows after dragging.
+                    */
+
+                    const body =
+                        document.getElementById(
+                            "todoBody"
+                        );
+
+
+                    const rows =
+                        Array.from(
+                            body.children
+                        );
+
+
+                    const draggedRow =
+                        body.querySelector(
+                            ".dragging"
+                        );
+
+
+                    const newIndex =
+                        rows.indexOf(
+                            draggedRow
+                        );
+
+
+                    if (
+                        newIndex === -1 ||
+                        newIndex === draggedIndex
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    /*
+                    Move the actual task
+                    inside the tasks array.
+                    */
+
+                    const movedTask =
+                        tasks.splice(
+                            draggedIndex,
+                            1
+                        )[0];
+
+
+                    tasks.splice(
+                        newIndex,
+                        0,
+                        movedTask
+                    );
+
+
+                    /*
+                    SAVE NEW ORDER
+                    */
+
+                    saveTasks();
+
+
+                    draggedIndex =
+                        null;
+
+
+                    /*
+                    REDRAW TABLE
+                    */
+
+                    displayTasks();
+
+                }
+            );
+
+
+
+            /*
+            DRAG END
+            */
+
+            row.addEventListener(
+                "dragend",
+                function() {
+
+
+                    /*
+                    If the user moved the row
+                    but released it without the
+                    normal drop event, calculate
+                    its current position here.
+                    */
+
+                    if (
+                        draggedIndex !== null
+                    ) {
+
+
+                        const body =
+                            document.getElementById(
+                                "todoBody"
+                            );
+
+
+                        const rows =
+                            Array.from(
+                                body.children
+                            );
+
+
+                        const newIndex =
+                            rows.indexOf(
+                                row
+                            );
+
+
+                        if (
+                            newIndex !== -1 &&
+                            newIndex !== draggedIndex
+                        ) {
+
+
+                            const movedTask =
+                                tasks.splice(
+                                    draggedIndex,
+                                    1
+                                )[0];
+
+
+                            tasks.splice(
+                                newIndex,
+                                0,
+                                movedTask
+                            );
+
+
+                            saveTasks();
+
+                        }
+
+                    }
+
+
+                    row.classList.remove(
+                        "dragging"
+                    );
+
+
+                    row.draggable =
+                        false;
+
+
+                    draggedIndex =
+                        null;
+
+
+                    displayTasks();
+
+                }
+            );
+
+
+
+            /*
+            ADD ROW TO TABLE
+            */
+
+            body.appendChild(
+                row
+            );
+
+        });
+
+
+
+        /*
+        =========================================
+        EMPTY MESSAGE
+        =========================================
+        */
+
+        document.getElementById(
+            "emptyMessage"
+        ).hidden =
+            tasks.length !== 0;
+
+    }
+
+
+
+    /*
+    =============================================
+    ADD OR UPDATE TASK
+    =============================================
+    */
+
+    document.getElementById(
+        "todoForm"
+    ).addEventListener(
+
+        "submit",
+
+        function(event) {
+
+
+            event.preventDefault();
+
+
+
+            const name =
+                document.getElementById(
+                    "taskName"
+                ).value.trim();
+
+
+            const category =
+                document.getElementById(
+                    "taskCategory"
+                ).value.trim();
+
+
+            const priority =
+                document.getElementById(
+                    "taskPriority"
+                ).value;
+
+
+            const deadline =
+                document.getElementById(
+                    "taskDeadline"
+                ).value;
+
+
+
+            /*
+            MAKE SURE REQUIRED FIELDS
+            EXIST
+            */
+
+            if (
+                !name ||
+                !deadline
+            ) {
+
+                return;
+
+            }
+
+
+
+            /*
+            -------------------------------------
+            EDIT EXISTING TASK
+            -------------------------------------
+            */
+
+
+            if (editingTaskId !== null) {
+
+                const taskToEdit =
+                    tasks.find(
+                        task => task.id === editingTaskId
+                    );
+
+
+                if (taskToEdit) {
+
+                    taskToEdit.name = name;
+
+                    taskToEdit.category = category;
+
+                    taskToEdit.priority = priority;
+                    taskToEdit.deadline = deadline;
+                }
+
+
+                editingTaskId = null;
+            }
+
+
+            /*
+            -------------------------------------
+            ADD NEW TASK
+            -------------------------------------
+            */
+
+            else {
+
+
+                tasks.push({
+
+                    id: crypto.randomUUID(),
+
+                    name: name,
+                    category: category,
+                    priority: priority,
+                    deadline: deadline,
+
+                    completed: false,
+                    done: false
+
+                });
+
+            }
+
+
+
+            /*
+            SAVE
+            */
+
+            saveTasks();
+
+
+
+            /*
+            REDRAW TABLE
+            */
+
+            displayTasks();
+
+
+
+            /*
+            CLEAR FORM
+            */
+
+            this.reset();
+
+
+
+            /*
+            RESTORE BUTTON TEXT
+            */
+
+            document.getElementById(
+                "addTaskButton"
+            ).textContent =
+                "+ Add Task";
+
+        }
+
+    );
+
+
+
+    /* INITIAL DISPLAY */
+
+    displayTasks();
+
+
+</script>
+
+
+</body>
+
+</html>

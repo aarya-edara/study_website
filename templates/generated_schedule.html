@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Your Schedule</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='schedulestyle.css') }}"
+    >
+
+    <link
+        rel="icon"
+        type="image/png"
+        href="{{ url_for('static', filename='favicon2.png') }}"
+    >
+</head>
+
+<body>
+
+
+
+<nav class="top-nav">
+
+    <a href="{{ url_for('home') }}" class="site-name">
+        Home
+    </a>
+
+    <a href="{{ url_for('create_schedule_page') }}" class="site-name">
+        Create Schedule
+    </a>
+
+    <a href="{{ url_for('show_schedule') }}" class="site-name">
+        My Schedule
+    </a>
+
+    <a href="{{ url_for('todo_list') }}" class="site-name">
+        To-Do List
+    </a>
+
+    <a href="{{ url_for('study_materials') }}" class="site-name">
+        Study Materials
+    </a>
+
+</nav>
+
+
+
+<h1>Your Schedule</h1>
+
+<div class="schedule-results">
+
+    {% if schedule %}
+
+    <table class="results-table">
+
+        <thead>
+            <tr>
+
+                <th>Task</th>
+
+                <th>Category</th>
+
+                <th>Priority</th>
+
+                {% if number_of_days > 1 %}
+                    <th>Date</th>
+                {% endif %}
+
+                <th>Start</th>
+
+                <th>End</th>
+
+                <th>Duration</th>
+
+                <th>Deadline</th>
+
+                <th>Time Remaining<br>(DD:HH:MM)</th>
+
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for item in schedule %}
+
+            <tr>
+
+                <td class="result-task">
+                    {{ item.task }}
+                </td>
+
+                <td>
+                    {{ item.category }}
+                </td>
+
+                <td>
+                    <span class="priority-label priority-{{ item.priority|lower }}">
+                        {{ item.priority|capitalize }}
+                    </span>
+                </td>
+
+                {% if number_of_days > 1 %}
+
+                <td>
+                    {{ item.date.strftime("%d %b %Y") }}
+                </td>
+
+                {% endif %}
+
+                <td>
+                    {{ item.start.strftime("%I:%M %p") }}
+                </td>
+
+                <td>
+                    {{ item.end.strftime("%I:%M %p") }}
+                </td>
+
+                <td>
+                    {{ item.minutes }} min
+                </td>
+
+                <td
+                    {% if item.deadline %}
+                        class="remaining-time"
+                        data-deadline="{{ item.deadline.isoformat() }}"
+                    {% endif %}
+                >
+                    {% if item.deadline %}
+                        {{ item.time_remaining }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+
+
+                <td class="remaining-time">
+
+                    {{ item.time_remaining }}
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    {% else %}
+
+        <p class="empty-schedule">
+            No tasks were scheduled.
+        </p>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

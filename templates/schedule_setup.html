@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Set Up Your Schedule</title>
+    <link rel="icon" type="image/png" href="../static/favicon2.png">
+
+    <link rel="stylesheet" href="../static/schedulestyle.css">
+</head>
+
+<body class="setup-page">
+
+
+
+<nav class="top-nav">
+
+    <a href="{{ url_for('home') }}" class="site-name">
+        Home
+    </a>
+
+    <a href="{{ url_for('create_schedule_page') }}" class="site-name">
+        Create Schedule
+    </a>
+
+    <a href="{{ url_for('show_schedule') }}" class="site-name">
+        My Schedule
+    </a>
+
+    <a href="{{ url_for('todo_list') }}" class="site-name">
+        To-Do List
+    </a>
+
+    <a href="{{ url_for('study_materials') }}" class="site-name">
+        Study Materials
+    </a>
+
+</nav>
+
+
+    <!-- LOADING INTRO -->
+
+    <div id="loadingScreen" class="loading-screen">
+
+        <p class="loading-text">
+            Loading...
+        </p>
+
+        <div class="loading-squares">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+    </div>
+
+
+    <!-- QUESTIONNAIRE -->
+
+    <main id="questionnaire" class="questionnaire">
+
+        <form method="POST" action="/generate-schedule">
+
+            <!-- START TIME -->
+
+            <div class="question">
+
+                <label for="start-time">
+                    What time would you like your day(s) to start?
+                </label>
+
+                <input
+                    type="time"
+                    id="start-time"
+                    name="start_time"
+                    value="09:00"
+                    required
+                >
+
+            </div>
+
+
+            <!-- END TIME -->
+
+            <div class="question">
+
+                <label for="end-time">
+                    What time would you like your day(s) to end?
+                </label>
+
+                <input
+                    type="time"
+                    id="end-time"
+                    name="end_time"
+                    value="18:00"
+                    required
+                >
+
+            </div>
+
+
+            <!-- NUMBER OF DAYS -->
+
+            <div class="question">
+
+                <label for="days">
+                    How many days should we spread your tasks over?
+                </label>
+
+                <input
+                    type="number"
+                    id="days"
+                    name="days"
+                    min="1"
+                    max="14"
+                    value="1"
+                    required
+                >
+
+            </div>
+
+
+            <!-- MEAL TIMES -->
+
+            <div class="question">
+
+                <label>
+                    Do you want to reserve a specific time for meals?
+                </label>
+
+                <div class="time-range">
+
+                    <div>
+                        <span>From</span>
+
+                        <input
+                            type="time"
+                            name="meal_start"
+                            value="13:15"
+                        >
+                    </div>
+
+                    <div>
+                        <span>Until</span>
+
+                        <input
+                            type="time"
+                            name="meal_end"
+                            value="14:15"
+                        >
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- UNAVAILABLE TIMES -->
+
+
+
+            <div class="question">
+
+                <label>
+                    Is there a time when you won't be available?
+                </label>
+
+                <div id="unavailableSlots">
+
+                    <!-- FIRST TIME SLOT -->
+                    <div class="unavailable-slot">
+
+                        <div>
+                            <span>From</span>
+
+                            <input
+                                type="time"
+                                name="unavailable_start[]"
+                            >
+                        </div>
+
+                        <div>
+                            <span>Until</span>
+
+                            <input
+                                type="time"
+                                name="unavailable_end[]"
+                            >
+                        </div>
+
+                        <div class="slot-actions">
+
+                            <button
+                                type="button"
+                                class="row-button"
+                                onclick="editUnavailable(this)"
+                            >
+                                Edit
+                            </button>
+
+                            <button
+                                type="button"
+                                class="row-button"
+                                onclick="finishUnavailable(this)"
+                            >
+                                Done
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+    <button
+        type="button"
+        class="add-slot-button"
+        onclick="addUnavailableSlot()"
+    >
+        + Add unavailable time
+    </button>
+
+</div>
+
+
+            <!-- BREAK PREFERENCE -->
+
+            <div class="question">
+
+                <label for="break-length">
+                    How long would you like breaks to be?
+                </label>
+
+                <select
+                    id="break-length"
+                    name="break_length"
+                >
+                    <option value="0">No scheduled breaks</option>
+                    <option value="5">5 minutes</option>
+                    <option value="10" selected>10 minutes</option>
+                    <option value="15">15 minutes</option>
+                    <option value="20">20 minutes</option>
+                    <option value="30">30 minutes</option>
+                </select>
+
+            </div>
+
+
+            <!-- SUBMIT -->
+
+            <button
+                type="submit"
+                class="generate-button"
+            >
+                Generate my schedule →
+            </button>
+
+        </form>
+
+    </main>
+
+
+    <script>
+
+        /*
+        Show the loading animation first.
+
+        After 2.2 seconds:
+        - loading screen disappears
+        - questionnaire appears
+        */
+
+        setTimeout(function () {
+
+            const loadingScreen =
+                document.getElementById("loadingScreen");
+
+            const questionnaire =
+                document.getElementById("questionnaire");
+
+
+            loadingScreen.classList.add("loading-finished");
+
+            questionnaire.classList.add("questionnaire-visible");
+
+        }, 2200);
+
+
+
+
+
+
+
+        // ADD ANOTHER UNAVAILABLE TIME
+
+        function addUnavailableSlot() {
+
+            const container =
+                document.getElementById("unavailableSlots");
+
+            const slot = document.createElement("div");
+
+            slot.classList.add("unavailable-slot");
+
+            slot.innerHTML = `
+
+                <div>
+                    <span>From</span>
+
+                    <input
+                        type="time"
+                        name="unavailable_start[]"
+                    >
+                </div>
+
+                <div>
+                    <span>Until</span>
+
+                    <input
+                        type="time"
+                        name="unavailable_end[]"
+                    >
+                </div>
+
+                <div class="slot-actions">
+
+                    <button
+                        type="button"
+                        class="row-button"
+                        onclick="editUnavailable(this)"
+                    >
+                        Edit
+                    </button>
+
+                    <button
+                        type="button"
+                        class="row-button"
+                        onclick="finishUnavailable(this)"
+                    >
+                        Done
+                    </button>
+
+                </div>
+            `;
+
+            container.appendChild(slot);
+        }
+
+
+        // FINISH A TIME SLOT
+
+        function finishUnavailable(button) {
+
+            const slot =
+                button.closest(".unavailable-slot");
+
+            const inputs =
+                slot.querySelectorAll("input");
+
+            inputs.forEach(function(input) {
+                input.readOnly = true;
+            });
+
+            slot.classList.add("slot-finished");
+        }
+
+
+        // EDIT A FINISHED TIME SLOT
+
+        function editUnavailable(button) {
+
+            const slot =
+                button.closest(".unavailable-slot");
+
+            const inputs =
+                slot.querySelectorAll("input");
+
+            inputs.forEach(function(input) {
+                input.readOnly = false;
+            });
+
+            slot.classList.remove("slot-finished");
+        }
+
+    </script>
+
+</body>
+
+</html>
